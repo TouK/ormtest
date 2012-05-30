@@ -10,7 +10,7 @@
 
     <groupId>pl.touk.ormtest</groupId>
     <artifactId>ormtest</artifactId>
-    <version>0.2.0</version>
+    <version>0.2.1-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>OrmTest</name>
