@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2010 TouK
+ * Copyright (c) 2011 TouK
  * All rights reserved
  */
-package pl.touk.top.ormtest;
+package pl.touk.ormtest;
 
 import org.junit.rules.MethodRule;
 import org.junit.runners.model.Statement;
@@ -26,43 +26,95 @@ import java.sql.SQLException;
 import com.ibatis.sqlmap.client.SqlMapClient;
 
 /**
- * Class for JUnit 4.8+ tests of Ibatis mappings in projects that use Spring-based DAOs.
- * <p/>
- * This class should be used as follows:
+ * Class for JUnit 4.8+ testing of Ibatis mappings in projects that use Spring-based DAOs. This class uses H2 in-memory
+ * database. By default it searches <i>sqlmap-config.xml</i> file on the classpath to configure Ibatis.
+ * <br>
+ * Tests using this class are very fast because they don't load spring application context although they can be
+ * used to test spring DAOs!
+ * <br>
+ * This class is very simple to use. An example is presented below. Although the example doesn't use
+ * spring DAOs it would be very similar if it did. The spring DAOs, which extend Spring's
+ * <i>SqlMapClientDaoSupport</i>, need an <i>SqlMapClientTemplate</i> which is in fact referenced in the example below
+ * (bold fragment in method <i>before</i>).
  * <pre><code>
- * <p/>
+ *
  * public class TransactionalTest {
- * <p/>
+ *
  *   <b>&#64;Rule
  *   public IbatisSpringTxMethodRule txContext = new IbatisSpringTxMethodRule();</b>
- * <p/>
+ *
  *   &#64;Before
  *   public void before() {
  *     // Prepare environment for every test in this class (transaction (new for every test) has already been open):
- *     SimpleJdbcTestUtils.executeSqlScript(new SimpleJdbcTemplate(txContext.getSqlMapClientTemplate().getDataSource()), new ClassPathResource("<name of a script that creates database>"), false);
- *     txContext.getSqlMapClientTemplate().insert("insert", new ExampleEntity(1, "nameInBefore"));
+ *     SimpleJdbcTestUtils.executeSqlScript(new SimpleJdbcTemplate(<b>txContext.getSqlMapClientTemplate()</b>.getDataSource()),
+ *                                          new ClassPathResource("some-script-creating-database.sql"),
+ *                                          false);
+ *     <b>txContext</b>.getSqlMapClientTemplate().insert("insert", new ExampleEntity(1, "some name"));
  *   }
- * <p/>
+ *
  *   &#64;After
  *   public void after() {
  *     // Clean-up after every test in this class. Transaction for the last executed test has not yet been closed if it is needed:
- *     txContext.getSqlMapClientTemplate().insert("insert", new ExampleEntity(1, "nameInAfter"));
+ *     <b>txContext.getSqlMapClientTemplate()</b>.insert("insert", new ExampleEntity(1, "some other name"));
  *   }
- * <p/>
+ *
  *   &#64;Test
- *   public void shoudPersistEntity1() throws Exception {
- *     txContext.getSqlMapClientTemplate().insert("insert", new ExampleEntity(2, "name"));
+ *   public void shoudPersistEntityA() throws Exception {
+ *     <b>txContext.getSqlMapClientTemplate()</b>.insert("insert", new ExampleEntity(2, "name"));
  *   }
- * <p/>
+ *
  *   &#64;Test
- *   public void shoudPersistEntity2() throws Exception {
- *     txContext.getSqlMapClientTemplate().insert("insert", new ExampleEntity(2, "name"));
+ *   public void shoudPersistEntityB() throws Exception {
+ *     <b>txContext.getSqlMapClientTemplate()</b>.insert("insert", new ExampleEntity(2, "name"));
  *   }
  * }
  * </code></pre>
- * <p/>
- * In above example, if the two tests are executed in parallel then each of them will be executed on different
- * in-memory databases.
+ *
+ * In above example, if the two tests are executed in parallel then each of them will be executed on different,
+ * completely independent in-memory H2 databases. For the above example to work a file <i>sqlmap-config.xml</i>
+ * must be on the classpath. This file can look for example like this:
+ *
+ * <code><pre>
+ * &lt;?xml version="1.0" encoding="UTF-8"?&gt;
+ * &lt;!DOCTYPE sqlMapConfig PUBLIC "-//iBATIS.com//DTD SQL Map Config 2.0//EN"
+ *   "http://www.ibatis.com/dtd/sql-map-config-2.dtd"&gt;
+ * &lt;sqlMapConfig&gt;
+ *   &lt;sqlMap resource="example-entity.xml"/&gt;
+ * &lt;/sqlMapConfig&gt;
+ * </pre></code>
+ * 
+ * The above sqlmap configuration references one sql map file,
+ * <i>example-entity.xml</i>, which can look for example like this:
+ *
+ * <code><pre>
+ * &lt;?xml version="1.0" encoding="UTF-8"?&gt;
+ * &lt;!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd"&gt;
+ * &lt;sqlMap namespace="exampleEntity"&gt;
+ *
+ *   &lt;resultMap class="pl.touk.ormtest.ExampleEntity" id="exampleEntityResult"&gt;
+ *     &lt;result property="id" column="id" /&gt;
+ *     &lt;result property="name" column="name" /&gt;
+ *   &lt;/resultMap&gt;
+ *
+ *   &lt;select id="selectAll" resultMap="exampleEntity.exampleEntityResult"&gt;
+ *     SELECT * FROM EXAMPLEENTITIES
+ *   &lt;/select&gt;
+ *
+ *   &lt;select id="select" resultMap="exampleEntity.exampleEntityResult"&gt;
+ *     SELECT * FROM EXAMPLEENTITIES WHERE id = #id#
+ *   &lt;/select&gt;
+ *
+ *   &lt;insert id="insert" parameterClass="pl.touk.ormtest.ExampleEntity"&gt;
+ *     INSERT INTO EXAMPLEENTITIES (name) VALUES (#name#)
+ *     &lt;selectKey keyProperty="id" resultClass="int"&gt;
+ *       SELECT LAST_INSERT_ID();
+ *     &lt;/selectKey&gt;
+ *   &lt;/insert&gt;
+ * &lt;/sqlMap&gt;
+ * </pre></code>
+ *
+ * And of course an <i>ExampleEntity</i> plain old java bean (POJO) with <i>id</i> and <i>name</i>
+ * properties would be needed for the above example to work.
  *
  * @author <a href="mailto:msk@touk.pl">Michał Sokołowski</a>
  */

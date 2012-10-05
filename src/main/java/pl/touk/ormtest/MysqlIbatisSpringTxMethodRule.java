@@ -1,8 +1,11 @@
-package pl.touk.top.ormtest;
+/*
+ * Copyright (c) 2011 TouK
+ * All rights reserved
+ */
+package pl.touk.ormtest;
 
 import javax.sql.DataSource;
 
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.test.jdbc.SimpleJdbcTestUtils;
@@ -70,7 +73,7 @@ public class MysqlIbatisSpringTxMethodRule extends IbatisSpringTxMethodRule {
         if (sqlMapConfig == null || sqlMapConfig.length() == 0) {
             throw new IllegalArgumentException("sqlMapConfig must not be null or empty");
         }
-        if (!sqlMapConfig.equals(MysqlIbatisSpringTxMethodRule.getSqlMapConfig())) {
+        if (!sqlMapConfig.equals(getSqlMapConfig())) {
             IbatisSpringTxMethodRule.setSqlMapConfig(sqlMapConfig);
             stopMysqlAndReset();
         }
@@ -78,7 +81,7 @@ public class MysqlIbatisSpringTxMethodRule extends IbatisSpringTxMethodRule {
 
     private static void stopMysqlAndReset() {
         stopMysql();
-        IbatisSpringTxMethodRule.resetThreadsForCurrentTestClass();
+        resetThreadsForCurrentTestClass();
     }
 
     private static final Object resourceGuard = new Object();

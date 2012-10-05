@@ -2,7 +2,7 @@
 <!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd">
 <sqlMap namespace="exampleEntity">
 
-	<resultMap class="pl.touk.top.ormtest.ExampleEntity" id="exampleEntityResult">
+	<resultMap class="pl.touk.ormtest.ExampleEntity" id="exampleEntityResult">
 		<result property="id" column="id" />
 		<result property="name" column="name" />
 	</resultMap>
@@ -23,7 +23,7 @@
             id = #id#
     </select>
 
-	<insert id="insert" parameterClass="pl.touk.top.ormtest.ExampleEntity">
+	<insert id="insert" parameterClass="pl.touk.ormtest.ExampleEntity">
   		INSERT INTO	EXAMPLEENTITIES
 			(name)
 		VALUES

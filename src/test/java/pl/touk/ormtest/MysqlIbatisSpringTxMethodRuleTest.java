@@ -1,12 +1,9 @@
 /*
- * Copyright (c) 2010 TouK
+ * Copyright (c) 2011 TouK
  * All rights reserved
  */
-package pl.touk.top.ormtest;
+package pl.touk.ormtest;
 
-import org.springframework.test.jdbc.SimpleJdbcTestUtils;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.springframework.core.io.ClassPathResource;
 import org.junit.*;
 
 import java.util.List;
@@ -14,16 +11,17 @@ import java.util.List;
 /**
  * @author <a href="mailto:msk@touk.pl">Michał Sokołowski</a>
  */
-public class IbatisSpringTxMethodRuleTest {
+public class MysqlIbatisSpringTxMethodRuleTest {
 
     private ExampleEntity firstExampleEntity = null;
 
     @Rule
-    public IbatisSpringTxMethodRule txContext = new IbatisSpringTxMethodRule();
+    public MysqlIbatisSpringTxMethodRule txContext = new MysqlIbatisSpringTxMethodRule();
 
     @Before
     public void before() {
-        SimpleJdbcTestUtils.executeSqlScript(new SimpleJdbcTemplate(txContext.getSqlMapClientTemplate().getDataSource()), new ClassPathResource("test.sql"), true);
+        // The following isn't needed as mysql-init.sql is executed by default when MysqlIbatisSpringTxMethodRuleTest is used:
+        // SimpleJdbcTestUtils.executeSqlScript(new SimpleJdbcTemplate(txContext.getSqlMapClientTemplate().getDataSource()), new ClassPathResource("mysql-init.sql"), true);
         firstExampleEntity = new ExampleEntity(0, "nameInBefore");
         txContext.getSqlMapClientTemplate().insert("insert", firstExampleEntity);
     }
@@ -39,7 +37,7 @@ public class IbatisSpringTxMethodRuleTest {
         // then threads used during these tests can be reused to run tests in IbatisSpringTxMethodRuleTest. The other
         // class has different database (data source) so we must clean any thread specific data (for example data
         // source) created by threads running this class.
-        IbatisSpringTxMethodRule.resetThreadsForCurrentTestClass();
+        MysqlIbatisSpringTxMethodRule.resetThreadsForCurrentTestClass();
     }
 
     @Test

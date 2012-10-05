@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2010 TouK
+ * Copyright (c) 2011 TouK
  * All rights reserved
  */
-package pl.touk.top.ormtest;
+package pl.touk.ormtest;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;

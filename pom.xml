@@ -5,7 +5,7 @@
     <parent>
         <artifactId>top</artifactId>
         <groupId>pl.touk</groupId>
-        <version>1.0.4</version>
+        <version>1.0.5</version>
     </parent>
 
     <groupId>pl.touk.ormtest</groupId>
@@ -14,13 +14,17 @@
     <packaging>jar</packaging>
 
     <name>OrmTest</name>
-    <description>OrmTest is a java framework for testing object-relation mappings.</description>
-    <url>http://top.touk.pl/confluence/display/top/OrmTest</url>
+    <description>
+        OrmTest is a java framework for JUnit 4.8+ testing of
+        object-relation mappings in projects that use Spring-based DAOs.
+    </description>
+    <url>http://touk.github.com/ormtest/</url>
     <inceptionYear>2010</inceptionYear>
     <organization>
         <name>TouK s.k.a.</name>
         <url>http://touk.pl/</url>
     </organization>
+
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
@@ -39,8 +43,8 @@
     </developers>
 
     <issueManagement>
-        <system>JIRA</system>
-        <url>http://top.touk.pl/jira/browse/ORMTEST</url>
+        <system>GitHub Issues</system>
+        <url>https://github.com/TouK/ormtest/issues</url>
     </issueManagement>
 
     <scm>
@@ -48,13 +52,6 @@
         <developerConnection>scm:git:git@github.com:TouK/ormtest.git</developerConnection>
         <url>https://github.com/TouK/ormtest</url>
     </scm>
-
-    <repositories>
-        <repository>
-            <id>TouK Top</id>
-            <url>http://top.touk.pl/maven2/release</url>
-        </repository>
-    </repositories>
 
     <build>
         <plugins>
@@ -98,7 +95,30 @@
                 <artifactId>maven-scm-plugin</artifactId>
                 <version>1.6</version>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-site-plugin</artifactId>
+                <version>3.1</version>
+            </plugin>
         </plugins>
+        <extensions>
+            <!-- Following three extensions are used to publish javadoc on github with site-deploy: -->
+            <extension>
+                <groupId>org.apache.maven.scm</groupId>
+                <artifactId>maven-scm-provider-gitexe</artifactId>
+                <version>1.3</version>
+            </extension>
+            <extension>
+                <groupId>org.apache.maven.scm</groupId>
+                <artifactId>maven-scm-manager-plexus</artifactId>
+                <version>1.3</version>
+            </extension>
+            <extension>
+                <groupId>org.kathrynhuxtable.maven.wagon</groupId>
+                <artifactId>wagon-gitsite</artifactId>
+                <version>0.3.1</version>
+            </extension>
+        </extensions>
     </build>
 
     <dependencies>
@@ -209,5 +229,30 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <reporting>
+        <plugins>
+            <!-- Generate javadoc as part of site generation. Skip test javadoc. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.8</version>
+                <reportSets>
+                    <reportSet>
+                        <reports>
+                            <report>javadoc</report>
+                        </reports>
+                    </reportSet>
+                </reportSets>
+            </plugin>
+        </plugins>
+    </reporting>
+
+    <distributionManagement>
+        <site>
+            <id>github-project-site</id>
+            <url>gitsite:git@github.com/TouK/ormtest.git</url>
+        </site>
+    </distributionManagement>
 
 </project>

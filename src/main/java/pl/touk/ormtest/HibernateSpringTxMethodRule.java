@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2010 TouK
+ * Copyright (c) 2011 TouK
  * All rights reserved
  */
-package pl.touk.top.ormtest;
+package pl.touk.ormtest;
 
 import org.junit.rules.MethodRule;
 import org.junit.runners.model.Statement;
@@ -25,7 +25,7 @@ import java.lang.reflect.InvocationTargetException;
 
 /**
  * Class for JUnit 4.8+ tests of Hibernate mappings in projects that use Spring-based DAOs.
- * <p/>
+ * <br/>
  * This class should be used as follows:
  * <pre><code>
  *
