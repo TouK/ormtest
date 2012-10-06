@@ -53,6 +53,14 @@
         <url>https://github.com/TouK/ormtest</url>
     </scm>
 
+    <repositories>
+        <repository>
+            <id>maven.touk.pl.releases</id>
+            <name>TouK Open source repository</name>
+            <url>http://maven.touk.pl/nexus/content/repositories/releases/</url>
+        </repository>
+    </repositories>
+
     <build>
         <plugins>
             <plugin>
