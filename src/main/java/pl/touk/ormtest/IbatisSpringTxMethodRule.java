@@ -1,29 +1,18 @@
 /*
- * Copyright (c) 2011 TouK
+ * Copyright (c) 2012 TouK
  * All rights reserved
  */
 package pl.touk.ormtest;
 
-import org.junit.rules.MethodRule;
-import org.junit.runners.model.Statement;
-import org.junit.runners.model.FrameworkMethod;
+import com.ibatis.sqlmap.client.SqlMapClient;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.orm.ibatis.SqlMapClientFactoryBean;
 import org.springframework.orm.ibatis.SqlMapClientTemplate;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.transaction.TransactionStatus;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
-import javax.sql.DataSource;
-import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentHashMap;
-import java.sql.SQLException;
-
-import com.ibatis.sqlmap.client.SqlMapClient;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Class for JUnit 4.8+ testing of Ibatis mappings in projects that use Spring-based DAOs. This class uses H2 in-memory
@@ -118,9 +107,7 @@ import com.ibatis.sqlmap.client.SqlMapClient;
  *
  * @author <a href="mailto:msk@touk.pl">Michał Sokołowski</a>
  */
-public class IbatisSpringTxMethodRule implements MethodRule {
-
-    private static final Log log = LogFactory.getLog(IbatisSpringTxMethodRule.class);
+public class IbatisSpringTxMethodRule extends SpringTxMethodRule {
 
     private static volatile String sqlMapConfig = "/sqlmap-config.xml";
 
@@ -129,36 +116,6 @@ public class IbatisSpringTxMethodRule implements MethodRule {
     private static volatile SqlMapClient sqlMapClient = null;
 
     private static ConcurrentMap<Thread, SqlMapClientTemplate> sqlMapClientTemplates = new ConcurrentHashMap<Thread, SqlMapClientTemplate>();
-    private static ConcurrentMap<Thread, TransactionStatus> txStatuses = new ConcurrentHashMap<Thread, TransactionStatus>();
-    private static ConcurrentMap<Thread, DataSourceTransactionManager> txManagers = new ConcurrentHashMap<Thread, DataSourceTransactionManager>();
-    private static ConcurrentMap<String, Set<Thread>> threadsPerTestClass = new ConcurrentHashMap<String, Set<Thread>>();
-
-    public IbatisSpringTxMethodRule() {
-        String invokerClassName = findInvokingTestClassName();
-        threadsPerTestClass.putIfAbsent(invokerClassName, new HashSet<Thread>());
-        threadsPerTestClass.get(invokerClassName).add(Thread.currentThread());
-    }
-
-    private static String findInvokingTestClassName() {
-        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-        int indexOfStackTraceElementCorrespondingToCurrentMethod = 1;
-        for (int i = indexOfStackTraceElementCorrespondingToCurrentMethod; i < stackTrace.length; i++) {
-            StackTraceElement el = stackTrace[i];
-            Class classOfElement = getStackTraceElementClass(el);
-            if (!IbatisSpringTxMethodRule.class.isAssignableFrom(classOfElement)) {
-                return classOfElement.getName();
-            }
-        }
-        throw new RuntimeException("first test class name not found");
-    }
-
-    private static Class getStackTraceElementClass(StackTraceElement el) {
-        try {
-            return Class.forName(el.getClassName());
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public static void setSqlMapConfig(String sqlMapConfig) {
         IbatisSpringTxMethodRule.sqlMapConfig = sqlMapConfig;
@@ -166,27 +123,6 @@ public class IbatisSpringTxMethodRule implements MethodRule {
 
     public static String getSqlMapConfig() {
         return sqlMapConfig;
-    }
-
-    /**
-     * Can be overriden in subclasses and should return a data source. The default implementation of this method
-     * returns a data source for in-memory H2 database. This method retuns different data sources if it is invoked
-     * in different threads (database name contains hash code of the current thread).
-     *
-     * @return data source to be used during tests
-     */
-    protected DataSource dataSource() {
-        DriverManagerDataSource ds = new DriverManagerDataSource();
-
-        ds.setDriverClassName("org.h2.Driver");
-        // If tests are run in parallel, then each thread should have its own database:
-        ds.setUrl("jdbc:h2:mem:db" + Thread.currentThread().hashCode() + ";DB_CLOSE_DELAY=-1;AUTOCOMMIT=OFF;MODE=MySQL");
-        ds.setUsername("sa");
-        ds.setPassword("");
-
-        log.info(getThreadPrefix() + "creating datasource to " + ds.getUrl());
-
-        return ds;
     }
 
     /**
@@ -218,7 +154,7 @@ public class IbatisSpringTxMethodRule implements MethodRule {
      * Can be overriden in subclasses and should return an <code>SqlMapClient</code> that will be used to create an
      * {@link org.springframework.orm.ibatis.SqlMapClientTemplate}. The default implementation
      * returns <code>SqlMapClient</code> created by invoking
-     * {@link #sqlMapClientFactoryBean()}.{@link SqlMapClientFactoryBean#getObject getObject()}.
+     * {@link #sqlMapClientFactoryBean()}.{@link org.springframework.orm.ibatis.SqlMapClientFactoryBean#getObject getObject()}.
      *
      * @return sqlMapClient that will be used during tests
      */
@@ -226,45 +162,12 @@ public class IbatisSpringTxMethodRule implements MethodRule {
         return (SqlMapClient) sqlMapClientFactoryBean().getObject();
     }
 
-    private void doBeginTransaction() {
-        ensureSqlMapClientTemplateInitialized();
-        if (txStatuses.get(Thread.currentThread()) == null) {
-            txStatuses.put(Thread.currentThread(), txManagers.get(Thread.currentThread()).getTransaction(null));
-        } else {
-            throw new IllegalStateException("transaction already started");
-        }
-    }
-
-    /**
-     * Rollbacks the transaction started in {@link #doBeginTransaction()}.
-     */
-    private void doRollBackTransaction() {
-        if (txStatuses.get(Thread.currentThread()) != null) {
-            txManagers.get(Thread.currentThread()).rollback(txStatuses.get(Thread.currentThread()));
-            txStatuses.remove(Thread.currentThread());
-        } else {
-            throw new IllegalStateException("there is no transaction to rollback");
-        }
-    }
-
-    /**
-     * Commits the transaction started in {@link #doBeginTransaction()}.
-     */
-    private void doCommitTransaction() {
-        if (txStatuses.get(Thread.currentThread()) != null) {
-            txManagers.get(Thread.currentThread()).commit(txStatuses.get(Thread.currentThread()));
-            txStatuses.remove(Thread.currentThread());
-        } else {
-            throw new IllegalStateException("there is no transaction to commit");
-        }
-    }
-
     public SqlMapClientTemplate getSqlMapClientTemplate() {
-        ensureSqlMapClientTemplateInitialized();
+        ensureTemplateInitialized();
         return sqlMapClientTemplates.get(Thread.currentThread());
     }
 
-    private void ensureSqlMapClientTemplateInitialized() {
+    protected void ensureTemplateInitialized() {
         if (sqlMapClient == null) {
             synchronized (guard) {
                 if (sqlMapClient == null) {
@@ -277,65 +180,6 @@ public class IbatisSpringTxMethodRule implements MethodRule {
             sqlMapClientTemplates.put(Thread.currentThread(), template);
             txManagers.put(Thread.currentThread(), new DataSourceTransactionManager(template.getDataSource()));
         }
-    }
-
-    public final Statement apply(final Statement base, FrameworkMethod method, Object target) {
-        return new Statement() {
-            public void evaluate() throws Throwable {
-                log.info(getThreadPrefix() + "method rule begins");
-                beginTransaction();
-                try {
-                    base.evaluate();
-                } finally {
-                    rollBackTransaction();
-                }
-                log.info(getThreadPrefix() + "method rule ends");
-            }
-        };
-    }
-
-    private void beginTransaction() {
-        try {
-            doBeginTransaction();
-        } catch (RuntimeException e) {
-            String s = "failed to begin a transaction";
-            log.error(s, e);
-            throw new RuntimeException(s, e);
-        }
-    }
-
-    private void commitTransaction() {
-        try {
-            doCommitTransaction();
-        } catch (RuntimeException e) {
-            String s = "failed to commit the transaction";
-            log.error(s, e);
-            throw new RuntimeException(s, e);
-        }
-    }
-
-    private void rollBackTransaction() {
-        try {
-            doRollBackTransaction();
-        } catch (RuntimeException e) {
-            String s = "failed to rollback transaction";
-            log.error(s, e);
-            throw new RuntimeException(s, e);
-        }
-    }
-
-    public void rollBackTransactionAndBeginNewOne() throws SQLException {
-        rollBackTransaction();
-        beginTransaction();
-    }
-
-    public void commitTransactionAndBeginNewOne() throws SQLException {
-        commitTransaction();
-        beginTransaction();
-    }
-
-    private String getThreadPrefix() {
-        return "thread " + Thread.currentThread().hashCode() + ": ";
     }
 
     public static void resetThreadsForCurrentTestClass() {

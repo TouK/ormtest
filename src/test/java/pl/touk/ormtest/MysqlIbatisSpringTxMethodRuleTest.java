@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 TouK
+ * Copyright (c) 2012 TouK
  * All rights reserved
  */
 package pl.touk.ormtest;

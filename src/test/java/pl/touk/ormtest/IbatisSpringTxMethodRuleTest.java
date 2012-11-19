@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011 TouK
+ * Copyright (c) 2012 TouK
  * All rights reserved
  */
 package pl.touk.ormtest;
@@ -9,6 +9,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.core.io.ClassPathResource;
 import org.junit.*;
 
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -22,8 +23,9 @@ public class IbatisSpringTxMethodRuleTest {
     public IbatisSpringTxMethodRule txContext = new IbatisSpringTxMethodRule();
 
     @Before
-    public void before() {
+    public void before() throws SQLException {
         SimpleJdbcTestUtils.executeSqlScript(new SimpleJdbcTemplate(txContext.getSqlMapClientTemplate().getDataSource()), new ClassPathResource("test.sql"), true);
+        txContext.commitTransactionAndBeginNewOne();
         firstExampleEntity = new ExampleEntity(0, "nameInBefore");
         txContext.getSqlMapClientTemplate().insert("insert", firstExampleEntity);
     }
@@ -35,9 +37,9 @@ public class IbatisSpringTxMethodRuleTest {
 
     @AfterClass
     public static void afterClass() {
-        // This class interferes with class IbatisSpringTxMethodRuleTest: if tests from this class are run first
-        // then threads used during these tests can be reused to run tests in IbatisSpringTxMethodRuleTest. The other
-        // class has different database (data source) so we must clean any thread specific data (for example data
+        // This class interferes with class MysqlIbatisSpringTxMethodRuleTest: if tests from this class are run first
+        // then threads used during these tests can be reused to run tests in MysqlIbatisSpringTxMethodRuleTest. The
+        // other class has different database (data source) so we must clean any thread specific data (for example data
         // source) created by threads running this class.
         IbatisSpringTxMethodRule.resetThreadsForCurrentTestClass();
     }
