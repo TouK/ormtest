@@ -43,7 +43,8 @@ import java.util.concurrent.ConcurrentMap;
  *
  *   &#64;After
  *   public void after() {
- *     // Clean-up after every test in this class. Transaction for the last executed test has not yet been closed if it is needed:
+ *     // Clean-up after every test in this class. Transaction for the
+ *     // last executed test has not yet been closed if it is needed:
  *     txContext.getJdbcTemplate().execute(
  *         "INSERT INTO EXAMPLEENTITIES (id, name) VALUES (1, 'some other name')"));
  *   }
@@ -88,9 +89,8 @@ public class JdbcSpringTxMethodRule extends SpringTxMethodRule {
     }
 
     public static void resetThreadsForCurrentTestClass() {
-        String invokerClassName = findInvokingTestClassName();
-        Set<Thread> threads = threadsPerTestClass.get(invokerClassName);
-        if (threads != null) {
+        Set<Thread> threads = getThreads(findInvokingTestClass());
+        if (threads != null && threads.size() > 0) {
             for (Thread t: threads) {
                 jdbcTemplates.remove(t);
                 txManagers.remove(t);

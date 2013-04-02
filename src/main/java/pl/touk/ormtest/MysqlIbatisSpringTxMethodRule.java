@@ -32,7 +32,8 @@ public class MysqlIbatisSpringTxMethodRule extends IbatisSpringTxMethodRule {
     private static final String user = "u";
     private static final String pass = "p";
     private static final int port = 3336;
-    private static final File mysqlDir = new File(new File(System.getProperty("java.io.tmpdir")), "db" + System.currentTimeMillis());
+    private static final File mysqlDir =
+            new File(new File(System.getProperty("java.io.tmpdir")), "db" + System.currentTimeMillis());
 
     public MysqlIbatisSpringTxMethodRule(String schema, String initScript, String sqlMapConfig) {
         if (schema != null) {
@@ -122,7 +123,8 @@ public class MysqlIbatisSpringTxMethodRule extends IbatisSpringTxMethodRule {
     private static DataSource createDataSource() {
         DriverManagerDataSource ds = new DriverManagerDataSource();
         ds.setDriverClassName("com.mysql.jdbc.Driver");
-        ds.setUrl("jdbc:mysql://localhost:" + port + "/" + schema + "?user=" + user + "&password=" + pass + "&createDatabaseIfNotExist=true");
+        ds.setUrl("jdbc:mysql://localhost:" + port + "/" + schema + "?user="
+                + user + "&password=" + pass + "&createDatabaseIfNotExist=true");
         return ds;
     }
 
@@ -149,7 +151,9 @@ public class MysqlIbatisSpringTxMethodRule extends IbatisSpringTxMethodRule {
     }
 
     private void executeInitScript() {
-        SimpleJdbcTestUtils.executeSqlScript(new SimpleJdbcTemplate(createDataSource()), new ClassPathResource(initScript), false);
+        SimpleJdbcTestUtils.executeSqlScript(
+                new SimpleJdbcTemplate(createDataSource()),
+                new ClassPathResource(initScript), false);
     }
 
     public static void stopMysql() {

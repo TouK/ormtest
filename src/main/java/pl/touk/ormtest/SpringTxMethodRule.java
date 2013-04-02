@@ -7,14 +7,18 @@ package pl.touk.ormtest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.rules.MethodRule;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
+import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.transaction.TransactionStatus;
 
 import javax.sql.DataSource;
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,22 +38,49 @@ abstract public class SpringTxMethodRule implements MethodRule {
     protected static ConcurrentMap<String, Set<Thread>> threadsPerTestClass = new ConcurrentHashMap<String, Set<Thread>>();
 
     public SpringTxMethodRule() {
-        String invokerClassName = findInvokingTestClassName();
+        String invokerClassName = findInvokingTestClass().getName();
         threadsPerTestClass.putIfAbsent(invokerClassName, new HashSet<Thread>());
         threadsPerTestClass.get(invokerClassName).add(Thread.currentThread());
     }
 
-    public static String findInvokingTestClassName() {
+    public static Class findInvokingTestClass() {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         int indexOfStackTraceElementCorrespondingToCurrentMethod = 1;
         for (int i = indexOfStackTraceElementCorrespondingToCurrentMethod; i < stackTrace.length; i++) {
             StackTraceElement el = stackTrace[i];
             Class classOfElement = getStackTraceElementClass(el);
             if (!SpringTxMethodRule.class.isAssignableFrom(classOfElement)) {
-                return classOfElement.getName();
+                return classOfElement;
             }
         }
         throw new RuntimeException("first test class name not found");
+    }
+
+    public static Set<Thread> getThreads(Class testClassOrSuiteClass) {
+        Set<Thread> threads = new HashSet<Thread>();
+        for (Class c: getTestClasses(testClassOrSuiteClass)) {
+            if (threadsPerTestClass.get(c.getName()) != null) {
+                threads.addAll(threadsPerTestClass.get(c.getName()));
+            }
+        }
+        return threads;
+    }
+
+    private static Set<Class> getTestClasses(Class testClassOrSuiteClass) {
+        HashSet<Class> testClasses = new HashSet<Class>();
+        RunWith annotation = AnnotationUtils.findAnnotation(testClassOrSuiteClass, RunWith.class);
+        if (annotation != null && Suite.class.isAssignableFrom(annotation.value())) {
+            Suite.SuiteClasses suiteClasses =
+                    AnnotationUtils.findAnnotation(testClassOrSuiteClass, Suite.SuiteClasses.class);
+            if (suiteClasses != null) {
+                if (suiteClasses.value() != null && suiteClasses.value().length > 0) {
+                    testClasses.addAll(Arrays.asList(suiteClasses.value()));
+                }
+                return testClasses;
+            }
+        }
+        testClasses.add(testClassOrSuiteClass);
+        return testClasses;
     }
 
     private static Class getStackTraceElementClass(StackTraceElement el) {

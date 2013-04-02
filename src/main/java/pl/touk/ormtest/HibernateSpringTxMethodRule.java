@@ -36,13 +36,15 @@ import java.lang.reflect.InvocationTargetException;
  *
  *   &#64;Before
  *   public void before() {
- *     // Prepare environment for every test in this class. Transaction (new for every test) has already been open:
+ *     // Prepare environment for every test in this class.
+ *     // Transaction (new for every test) has already been open:
  *     txContext.getHibernateTemplate().persist(new ExampleEntity(2, "entity created in before()"));
  *   }
  *
  *   &#64;After
  *   public void after() {
- *     // Clean-up after every test in this class. Transaction for the last executed test has not yet been close if it is needed:
+ *     // Clean-up after every test in this class. Transaction for the last executed
+ *     // test has not yet been close if it is needed:
  *     txContext.getHibernateTemplate().persist(new ExampleEntity(3, "entity created in after()"));
  *   }
  *
@@ -58,7 +60,8 @@ import java.lang.reflect.InvocationTargetException;
  * }
  * </code></pre>
  *
- * In above example, if the two tests are executed in parallel then each of them will be executed on different in-memory databases.
+ * In above example, if the two tests are executed in parallel then each of them will be executed on different
+ * in-memory databases.
  *
  * @author <a href="mailto:msk@touk.pl">Michał Sokołowski</a>
  */
@@ -72,8 +75,9 @@ public class HibernateSpringTxMethodRule implements MethodRule {
     private static ConcurrentMap<Thread, Session> sessions = new ConcurrentHashMap<Thread, Session>();
 
     /**
-     * Can be overriden in subclasses and should return a data source. The returned data source is used in the default implementation of {@link #hibernateProperties()}.
-     * The default implementation of this method returns a data source for in-memory HSQL database (database name: <code>test</code>, user name: <code>sa</code>, no password).
+     * Can be overriden in subclasses and should return a data source. The returned data source is used in the default
+     * implementation of {@link #hibernateProperties()}. The default implementation of this method returns a data
+     * source for in-memory HSQL database (database name: <code>test</code>, user name: <code>sa</code>, no password).
      *
      * @return data source to be used during tests
      */
@@ -90,14 +94,16 @@ public class HibernateSpringTxMethodRule implements MethodRule {
     }
 
     /**
-     * Can be overriden in subclasses and should return Hibernate properties. Returned properties are used in the default implementation of
-     * {@link #annotationSessionFactoryBean()}. The default implementation of this method returns following key-value pairs:
+     * Can be overriden in subclasses and should return Hibernate properties. Returned properties are used in the
+     * default implementation of {@link #annotationSessionFactoryBean()}. The default implementation of this method
+     * returns following key-value pairs:
      * <dl>
      * <dt><code>hibernate.connection.autocommit</code></dt>
      * <dd><code>false<code></dd>
      * <dt><code>hibernate.hbm2ddl.auto</code></dt>
      * <dd>
-     * <code>create-drop</code> (if {@link #dataSource()} returns a data source which has an <code>url</code> property and that property contains <code>hsql</code> substring)<br>
+     * <code>create-drop</code> (if {@link #dataSource()} returns a data source which has an <code>url</code> property
+     * and that property contains <code>hsql</code> substring)<br>
      * <code>validate</code> (otherwise)
      * </dd>
      * </dl>
@@ -138,15 +144,21 @@ public class HibernateSpringTxMethodRule implements MethodRule {
     }
 
     /**
-     * Can be overriden in subclasses and should return an {@link org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean}. The returned factory bean is used in the default
-     * implementation of {@link #sessionFactory()}. The default implementation of this method returns an <code>AnnotationSessionFactoryBean</code>
-     * initialized in the following manner.
+     * Can be overriden in subclasses and should return an
+     * {@link org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean}. The returned factory bean
+     * is used in the default implementation of {@link #sessionFactory()}. The default implementation of this method
+     * returns an <code>AnnotationSessionFactoryBean</code> initialized in the following manner.
      * <ol>
      * <li>The <code>dataSource</code> property is assigned the value returned by {@link #dataSource()}.</li>
-     * <li>The <code>hibernateProperties</code> property is assigned the value returned by {@link #hibernateProperties()}.</li>
-     * <li>If {@link #annotatedClasses()} returns <code>non-null</code> than the <code>annotatedClasses</code> property is assigned the returned value.
-     * Otherwise the <code>packagesToScan</code> property is assigned an one-element array containing the value returned by {@link #packegWithAnnotatedClasses()}.</li>
-     * <li>The {@link org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean#afterPropertiesSet afterPropertiesSet()} is invoked.
+     * <li>The <code>hibernateProperties</code> property is assigned the value returned by
+     * {@link #hibernateProperties()}.</li>
+     * <li>If {@link #annotatedClasses()} returns <code>non-null</code> than the <code>annotatedClasses</code>
+     * property is assigned the returned value.
+     * Otherwise the <code>packagesToScan</code> property is assigned an one-element array containing the value
+     * returned by {@link #packegWithAnnotatedClasses()}.</li>
+     * <li>The
+     * {@link org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean#afterPropertiesSet afterPropertiesSet()}
+     * is invoked.
      * </ol>
      *
      * @return an <code>AnnotationSessionFactoryBean</code>
@@ -171,7 +183,8 @@ public class HibernateSpringTxMethodRule implements MethodRule {
     }
 
     /**
-     * Can be overriden in subclasses and should return an array of annotated classes. The returned array is used by the default implementation of {@link #annotationSessionFactoryBean()}.
+     * Can be overriden in subclasses and should return an array of annotated classes. The returned array is used by
+     * the default implementation of {@link #annotationSessionFactoryBean()}.
      * The default implementation of this method returns <code>null</code>.
      *
      * @return annotated classes to be used by Hibernate
@@ -181,11 +194,12 @@ public class HibernateSpringTxMethodRule implements MethodRule {
     }
 
     /**
-     * Can be overriden in subclasses and should return a package containing annotated classes to be processed by Hibernate. The default implementation returns
-     * a package containing first three parts of the package of this class (for example <code>pl.touk.someproject</code>).
-     * The returned package is used in the default implementation of {@link #annotationSessionFactoryBean()} as a search location for annotated classes.
-     * The default implementation is suitable in most cases but also not optimal in most cases as annotated classes are probably located in a subpackage of
-     * the returned package.
+     * Can be overriden in subclasses and should return a package containing annotated classes to be processed by
+     * Hibernate. The default implementation returns a package containing first three parts of the package of this
+     * class (for example <code>pl.touk.someproject</code>). The returned package is used in the default implementation
+     * of {@link #annotationSessionFactoryBean()} as a search location for annotated classes. The default
+     * implementation is suitable in most cases but also not optimal in most cases as annotated classes are probably
+     * located in a subpackage of the returned package.
      *
      * @return package containing annotated classes
      */
@@ -194,8 +208,10 @@ public class HibernateSpringTxMethodRule implements MethodRule {
     }
 
     /**
-     * Can be overriden in subclasses and should return a session factory that will be used to create a Hibernate session before every JUnit or TestNG test. The default implementation
-     * returns the session factory created by invoking {@link #annotationSessionFactoryBean()}.{@link org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean#getObject getObject()}.
+     * Can be overriden in subclasses and should return a session factory that will be used to create a Hibernate
+     * session before every JUnit or TestNG test. The default implementation
+     * returns the session factory created by invoking
+     * {@link #annotationSessionFactoryBean()}.{@link org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean#getObject getObject()}.
      *
      * @return session factory that will be used to create a Hibernate session before every JUnit or TestNG test
      */
@@ -204,7 +220,8 @@ public class HibernateSpringTxMethodRule implements MethodRule {
     }
 
     /**
-     * Creates a Hibernate session (invoking {@link #createSession()}) and begins a transaction (invoking {@link #beginTransaction()}).
+     * Creates a Hibernate session (invoking {@link #createSession()}) and begins a transaction
+     * (invoking {@link #beginTransaction()}).
      * This method is annotated with JUnit's <code>Before</code> and TestNG <code>BeforeMethod</code> annotations.
      *
      * @throws Exception
@@ -215,7 +232,8 @@ public class HibernateSpringTxMethodRule implements MethodRule {
     }
 
     /**
-     * Rolls back the transaction (invoking {@link #rollBackTransaction()}) started in {@link #beginTransaction()} and closes the
+     * Rolls back the transaction (invoking {@link #rollBackTransaction()}) started in
+     * {@link #beginTransaction()} and closes the
      * Hibernate session (invoking {@link #closeSession()}) created in {@link #createSession()}.
      * This method is annotated with JUnit's <code>After</code> and TestNG <code>AfterMethod</code> annotations.
      */
@@ -229,7 +247,9 @@ public class HibernateSpringTxMethodRule implements MethodRule {
             ensureSessionFactoryInitialized();
             Session session = SessionFactoryUtils.getSession(factories.get(Thread.currentThread()), true);
             sessions.put(Thread.currentThread(), session);
-            TransactionSynchronizationManager.bindResource(factories.get(Thread.currentThread()), new SessionHolder(session));
+            TransactionSynchronizationManager.bindResource(
+                    factories.get(Thread.currentThread()),
+                    new SessionHolder(session));
         }
     }
 
@@ -240,7 +260,8 @@ public class HibernateSpringTxMethodRule implements MethodRule {
     }
 
     /**
-     * Commits the transaction started in {@link #beginTransaction()}. In addition, the Hibernate session (also created in <code>beginTransaction()</code>) is closed.
+     * Commits the transaction started in {@link #beginTransaction()}. In addition, the Hibernate session
+     * (also created in <code>beginTransaction()</code>) is closed.
      * If the Hibernate session was closed prior the invokation of this method nothing is actually done.
      */
     public void rollBackTransaction() {
@@ -281,7 +302,8 @@ public class HibernateSpringTxMethodRule implements MethodRule {
     }
 
     /**
-     * Flashes Hibernate session created in {@link #beginTransaction()}. Some Hibernate mapping errors can be detected only after flush, i.e. after actual database operations are invoked.
+     * Flashes Hibernate session created in {@link #beginTransaction()}. Some Hibernate mapping errors can be
+     * detected only after flush, i.e. after actual database operations are invoked.
      */
     public void flush() {
         if (getSession() != null) {
@@ -300,7 +322,9 @@ public class HibernateSpringTxMethodRule implements MethodRule {
             synchronized (guard) {
                 if (factories.get(Thread.currentThread()) == null) {
                     factories.put(Thread.currentThread(), sessionFactory());
-                    hibernateTemplates.put(Thread.currentThread(), new HibernateTemplate(factories.get(Thread.currentThread())));
+                    hibernateTemplates.put(
+                            Thread.currentThread(),
+                            new HibernateTemplate(factories.get(Thread.currentThread())));
                 }
             }
         }

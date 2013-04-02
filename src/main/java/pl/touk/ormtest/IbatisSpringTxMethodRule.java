@@ -186,9 +186,8 @@ public class IbatisSpringTxMethodRule extends SpringTxMethodRule {
         synchronized (guard) {
             sqlMapClient = null;
         }
-        String invokerClassName = findInvokingTestClassName();
-        Set<Thread> threads = threadsPerTestClass.get(invokerClassName);
-        if (threads != null) {
+        Set<Thread> threads = getThreads(findInvokingTestClass());
+        if (threads != null && threads.size() > 0) {
             for (Thread t: threads) {
                 sqlMapClientTemplates.remove(t);
                 txManagers.remove(t);
