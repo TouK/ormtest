@@ -19,7 +19,7 @@ import java.util.concurrent.ConcurrentMap;
  * database. By default it searches <i>sqlmap-config.xml</i> file on the classpath to configure Ibatis.
  * <br>
  * Tests using this class are very fast because they don't load spring application context although they can be
- * used to test spring DAOs!
+ * used to test spring DAOs.
  * <br>
  * This class is very simple to use. An example is presented below. Although the example doesn't use
  * spring DAOs it would be very similar if it did. The spring DAOs, which extend Spring's
@@ -109,7 +109,8 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class IbatisSpringTxMethodRule extends SpringTxMethodRule {
 
-    private static volatile String sqlMapConfig = "/sqlmap-config.xml";
+    private static final String sqlMapConfigDefault = "/sqlmap-config.xml";
+    private static volatile String sqlMapConfig = sqlMapConfigDefault;
 
     // Guards assignment of sqlMapClient:
     private static final Object guard = new Object();
@@ -159,6 +160,12 @@ public class IbatisSpringTxMethodRule extends SpringTxMethodRule {
      * @return sqlMapClient that will be used during tests
      */
     protected SqlMapClient sqlMapClient() {
+        // In Spring 2.5 return type of sqlMapClientFactoryBean().getObject() is Object. In Spring 3.0, 3.1 and 3.2 -
+        // SqlMapClient. So if we compiled OrmTest against Spring 3.0, 3.1 or 3.2 then Spring 2.5 couldn't be used at
+        // runtime because of the exception:
+        // java.lang.NoSuchMethodError:
+        // org.springframework.orm.ibatis.SqlMapClientFactoryBean.getObject()Lcom/ibatis/sqlmap/client/SqlMapClient.
+        // That's why Spring 2.5 is used during compilation.
         return (SqlMapClient) sqlMapClientFactoryBean().getObject();
     }
 
@@ -183,8 +190,15 @@ public class IbatisSpringTxMethodRule extends SpringTxMethodRule {
     }
 
     public static void resetThreadsForCurrentTestClass() {
+        resetThreadsForCurrentTestClass(true);
+    }
+
+    protected static void resetThreadsForCurrentTestClass(boolean hardReset) {
         synchronized (guard) {
             sqlMapClient = null;
+        }
+        if (hardReset) {
+            sqlMapConfig = sqlMapConfigDefault;
         }
         Set<Thread> threads = getThreads(findInvokingTestClass());
         if (threads != null && threads.size() > 0) {

@@ -1,27 +1,27 @@
 /*
- * Copyright (c) 2011 TouK
- * All rights reserved
- */
+* Copyright (c) 2011 TouK
+* All rights reserved
+*/
 package pl.touk.ormtest;
 
-import org.junit.rules.MethodRule;
-import org.junit.runners.model.Statement;
-import org.junit.runners.model.FrameworkMethod;
-import org.hibernate.SessionFactory;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.junit.rules.MethodRule;
+import org.junit.runners.model.FrameworkMethod;
+import org.junit.runners.model.Statement;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
 import org.springframework.orm.hibernate3.SessionHolder;
 import org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
-import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import javax.sql.DataSource;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.Properties;
-import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * Class for JUnit 4.8+ tests of Hibernate mappings in projects that use Spring-based DAOs.
@@ -155,7 +155,7 @@ public class HibernateSpringTxMethodRule implements MethodRule {
      * <li>If {@link #annotatedClasses()} returns <code>non-null</code> than the <code>annotatedClasses</code>
      * property is assigned the returned value.
      * Otherwise the <code>packagesToScan</code> property is assigned an one-element array containing the value
-     * returned by {@link #packegWithAnnotatedClasses()}.</li>
+     * returned by {@link #packageWithAnnotatedClasses()}.</li>
      * <li>The
      * {@link org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean#afterPropertiesSet afterPropertiesSet()}
      * is invoked.
@@ -171,7 +171,13 @@ public class HibernateSpringTxMethodRule implements MethodRule {
         if (annotatedClasses != null) {
             sessionFactoryBean.setAnnotatedClasses(annotatedClasses);
         } else {
-            sessionFactoryBean.setPackagesToScan(new String[]{packegWithAnnotatedClasses()});
+            String pkg = packageWithAnnotatedClasses();
+            if (pkg == null) {
+                pkg = "";
+            } else if (pkg.length() > 0 && !pkg.endsWith(".")) {
+                pkg += ".";
+            }
+            sessionFactoryBean.setPackagesToScan(new String[]{pkg});
         }
         try {
             sessionFactoryBean.afterPropertiesSet();
@@ -195,16 +201,16 @@ public class HibernateSpringTxMethodRule implements MethodRule {
 
     /**
      * Can be overriden in subclasses and should return a package containing annotated classes to be processed by
-     * Hibernate. The default implementation returns a package containing first three parts of the package of this
-     * class (for example <code>pl.touk.someproject</code>). The returned package is used in the default implementation
+     * Hibernate. The default implementation returns an empty string which means that all packages will be scanned.
+     * The returned package is used in the default implementation
      * of {@link #annotationSessionFactoryBean()} as a search location for annotated classes. The default
      * implementation is suitable in most cases but also not optimal in most cases as annotated classes are probably
-     * located in a subpackage of the returned package.
+     * located in some specific package.
      *
      * @return package containing annotated classes
      */
-    protected String packegWithAnnotatedClasses() {
-        return "pl.touk.";
+    protected String packageWithAnnotatedClasses() {
+        return "";
     }
 
     /**
@@ -341,5 +347,11 @@ public class HibernateSpringTxMethodRule implements MethodRule {
                 }
             }
         };
+    }
+
+    public static void resetThreadsForCurrentTestClass() {
+        factories.clear();
+        hibernateTemplates.clear();
+        sessions.clear();
     }
 }
