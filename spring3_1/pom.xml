@@ -11,10 +11,10 @@
     </parent>
 
     <groupId>pl.touk.ormtest</groupId>
-    <artifactId>spring2_5</artifactId>
+    <artifactId>spring3_1</artifactId>
 
     <properties>
-        <spring.version>2.5.6</spring.version>
+        <spring.version>3.1.4.RELEASE</spring.version>
     </properties>
 
     <build>
@@ -23,6 +23,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
+                    <forkMode>never</forkMode>
                     <includes>
                         <include>**/*Suite.java</include>
                         <include>**/*Test.java</include>

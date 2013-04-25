@@ -18,6 +18,7 @@
         <module>ormtesttest</module>
         <module>spring2_5</module>
         <module>spring3_0</module>
+        <module>spring3_1</module>
         <module>spring3_2</module>
     </modules>
 
