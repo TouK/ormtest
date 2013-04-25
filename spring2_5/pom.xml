@@ -12,6 +12,7 @@
 
     <groupId>pl.touk.ormtest</groupId>
     <artifactId>spring2_5</artifactId>
+    <packaging>jar</packaging>
 
     <properties>
         <spring.version>2.5.6</spring.version>

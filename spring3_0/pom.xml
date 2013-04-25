@@ -12,6 +12,7 @@
 
     <groupId>pl.touk.ormtest</groupId>
     <artifactId>spring3_0</artifactId>
+    <packaging>jar</packaging>
 
     <properties>
         <spring.version>3.0.7.RELEASE</spring.version>

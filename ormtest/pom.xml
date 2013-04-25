@@ -3,18 +3,16 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <artifactId>top</artifactId>
-        <groupId>pl.touk</groupId>
-        <version>1.0.5</version>
+        <groupId>pl.touk.ormtest</groupId>
+        <artifactId>ormtest-parent</artifactId>
+        <version>0.3.4-SNAPSHOT</version>
     </parent>
 
     <groupId>pl.touk.ormtest</groupId>
     <artifactId>ormtest</artifactId>
-    <version>0.3.4-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!--
         Using spring 2.5.6 during compilation. This way OrmTest can be used with Spring 3.0, 3.1 or 3.2
         at runtime (see comment in method pl.touk.ormtest.IbatisSpringTxMethodRule.sqlMapClient).
@@ -23,6 +21,16 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>1.4</version>
+        </dependency>
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
@@ -58,17 +66,6 @@
             <artifactId>spring-test</artifactId>
             <version>${spring.version}</version>
             <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.8</version>
-        </dependency>
-        <dependency>
-            <groupId>commons-io</groupId>
-            <artifactId>commons-io</artifactId>
-            <version>1.4</version>
         </dependency>
         <dependency>
             <groupId>mysql</groupId>
