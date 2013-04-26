@@ -6,6 +6,7 @@ package pl.touk.ormtest;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.orm.ibatis.SqlMapClientFactoryBean;
 import org.springframework.orm.ibatis.SqlMapClientTemplate;
@@ -109,8 +110,8 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class IbatisSpringTxMethodRule extends SpringTxMethodRule {
 
-    private static final String sqlMapConfigDefault = "/sqlmap-config.xml";
-    private static volatile String sqlMapConfig = sqlMapConfigDefault;
+    private static final String[] sqlMapConfigDefault = new String[]{"/sqlmap-config.xml"};
+    private static volatile String[] sqlMapConfig = sqlMapConfigDefault;
 
     // Guards assignment of sqlMapClient:
     private static final Object guard = new Object();
@@ -118,11 +119,19 @@ public class IbatisSpringTxMethodRule extends SpringTxMethodRule {
 
     private static ConcurrentMap<Thread, SqlMapClientTemplate> sqlMapClientTemplates = new ConcurrentHashMap<Thread, SqlMapClientTemplate>();
 
-    public static void setSqlMapConfig(String sqlMapConfig) {
+    public static void setSqlMapConfig(String... sqlMapConfig) {
+        if (sqlMapConfig == null || sqlMapConfig.length == 0) {
+            throw new IllegalArgumentException("sqlMapConfig must not be null or empty");
+        }
+        for (int i = 0; i < sqlMapConfig.length; i++) {
+            if (sqlMapConfig[i] == null || sqlMapConfig[i].length() == 0) {
+                throw new IllegalArgumentException("sqlMapConfig[" + i + "] is null or empty");
+            }
+        }
         IbatisSpringTxMethodRule.sqlMapConfig = sqlMapConfig;
     }
 
-    public static String getSqlMapConfig() {
+    public static String[] getSqlMapConfig() {
         return sqlMapConfig;
     }
 
@@ -141,7 +150,7 @@ public class IbatisSpringTxMethodRule extends SpringTxMethodRule {
      */
     protected SqlMapClientFactoryBean sqlMapClientFactoryBean() {
         SqlMapClientFactoryBean sqlMapClientFactoryBean = new SqlMapClientFactoryBean();
-        sqlMapClientFactoryBean.setConfigLocation(new ClassPathResource(sqlMapConfig));
+        sqlMapClientFactoryBean.setConfigLocations(createSqlMapConfigResourceArray());
         try {
             sqlMapClientFactoryBean.afterPropertiesSet();
         } catch (Exception e) {
@@ -149,6 +158,14 @@ public class IbatisSpringTxMethodRule extends SpringTxMethodRule {
         }
 
         return sqlMapClientFactoryBean;
+    }
+
+    private Resource[] createSqlMapConfigResourceArray() {
+        Resource[] array = new ClassPathResource[sqlMapConfig.length];
+        for (int i = 0; i < sqlMapConfig.length; i++) {
+            array[i] = new ClassPathResource(sqlMapConfig[i]);
+        }
+        return array;
     }
 
     /**
