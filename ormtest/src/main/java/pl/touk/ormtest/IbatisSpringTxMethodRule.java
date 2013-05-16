@@ -135,6 +135,13 @@ public class IbatisSpringTxMethodRule extends SpringTxMethodRule {
         return sqlMapConfig;
     }
 
+    public IbatisSpringTxMethodRule() {
+    }
+
+    public IbatisSpringTxMethodRule(String sqlMapConfig) {
+        setSqlMapConfig(sqlMapConfig);
+    }
+
     /**
      * Can be overriden in subclasses and should return an {@link org.springframework.orm.ibatis.SqlMapClientFactoryBean}.
      * The returned factory bean is used in the default implementation of {@link #sqlMapClient()}. The default
