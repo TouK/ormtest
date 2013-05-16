@@ -128,8 +128,9 @@ abstract public class SpringTxMethodRule implements MethodRule {
         if (h2Mode != null && h2Mode.length() > 0) {
             if (h2Mode.indexOf(';') == -1) {
                 h2ModeOption = ";MODE=" + h2Mode;
-                Mode.getInstance(h2Mode);
-                log.warn("h2 compatibility mode " + h2Mode + " not found");
+                if (Mode.getInstance(h2Mode) == null) {
+                    log.warn("h2 compatibility mode " + h2Mode + " not found");
+                }
             } else {
                 throw new IllegalArgumentException("h2Mode must not contain ';' character");
             }
