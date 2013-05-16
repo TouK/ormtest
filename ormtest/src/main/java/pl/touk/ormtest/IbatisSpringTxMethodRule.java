@@ -110,14 +110,14 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class IbatisSpringTxMethodRule extends SpringTxMethodRule {
 
-    private static final String[] sqlMapConfigDefault = new String[]{"/sqlmap-config.xml"};
+    private final static String[] sqlMapConfigDefault = new String[]{"/sqlmap-config.xml"};
     private static volatile String[] sqlMapConfig = sqlMapConfigDefault;
 
     // Guards assignment of sqlMapClient:
-    private static final Object guard = new Object();
+    private final static Object guard = new Object();
     private static volatile SqlMapClient sqlMapClient = null;
 
-    private static ConcurrentMap<Thread, SqlMapClientTemplate> sqlMapClientTemplates = new ConcurrentHashMap<Thread, SqlMapClientTemplate>();
+    private final static ConcurrentMap<Thread, SqlMapClientTemplate> sqlMapClientTemplates = new ConcurrentHashMap<Thread, SqlMapClientTemplate>();
 
     public static void setSqlMapConfig(String... sqlMapConfig) {
         if (sqlMapConfig == null || sqlMapConfig.length == 0) {

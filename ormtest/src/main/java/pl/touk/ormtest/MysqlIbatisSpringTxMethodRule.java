@@ -91,7 +91,6 @@ public class MysqlIbatisSpringTxMethodRule extends IbatisSpringTxMethodRule {
                 try {
                     executeInitScript();
                 } catch (RuntimeException e) {
-                    logger.error("failed to execute " + initScript, e);
                     scheduleMysqlStop();
                     throw e;
                 }
@@ -156,9 +155,14 @@ public class MysqlIbatisSpringTxMethodRule extends IbatisSpringTxMethodRule {
                     + ") different than init script count (" + initScript.length + ")");
         }
         for (int i = 0; i < initScript.length; i++) {
-            SimpleJdbcTestUtils.executeSqlScript(
-                    new SimpleJdbcTemplate(createDataSource(i)),
-                    new ClassPathResource(initScript[i]), false);
+            try {
+                SimpleJdbcTestUtils.executeSqlScript(
+                        new SimpleJdbcTemplate(createDataSource(i)),
+                        new ClassPathResource(initScript[i]), false);
+            } catch (RuntimeException e) {
+                logger.error("failed to execute init script " + initScript[i], e);
+                throw e;
+            }
         }
     }
 
@@ -183,6 +187,7 @@ public class MysqlIbatisSpringTxMethodRule extends IbatisSpringTxMethodRule {
                     try {
                         FileUtils.deleteDirectory(mysqlDir);
                     } catch (IOException e) {
+                        logger.warn("exception while deleting directory: " + mysqlDir, e);
                     }
                 } catch (RuntimeException e) {
                     logger.error("exception while stopping mysql", e);

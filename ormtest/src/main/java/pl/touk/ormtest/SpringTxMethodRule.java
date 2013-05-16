@@ -18,7 +18,6 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.transaction.TransactionStatus;
 
 import javax.sql.DataSource;
-import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -34,9 +33,12 @@ abstract public class SpringTxMethodRule implements MethodRule {
 
     private static final Log log = LogFactory.getLog(SpringTxMethodRule.class);
 
-    protected static ConcurrentMap<Thread, TransactionStatus> txStatuses = new ConcurrentHashMap<Thread, TransactionStatus>();
-    protected static ConcurrentMap<Thread, DataSourceTransactionManager> txManagers = new ConcurrentHashMap<Thread, DataSourceTransactionManager>();
-    protected static ConcurrentMap<String, Set<Thread>> threadsPerTestClass = new ConcurrentHashMap<String, Set<Thread>>();
+    protected final static ConcurrentMap<Thread, TransactionStatus> txStatuses =
+            new ConcurrentHashMap<Thread, TransactionStatus>();
+    protected final static ConcurrentMap<Thread, DataSourceTransactionManager> txManagers =
+            new ConcurrentHashMap<Thread, DataSourceTransactionManager>();
+    protected final static ConcurrentMap<String, Set<Thread>> threadsPerTestClass =
+            new ConcurrentHashMap<String, Set<Thread>>();
 
     private final String h2ModeOption;
 
@@ -217,12 +219,12 @@ abstract public class SpringTxMethodRule implements MethodRule {
         }
     }
 
-    public void rollBackTransactionAndBeginNewOne() throws SQLException {
+    public void rollBackTransactionAndBeginNewOne() {
         rollBackTransaction();
         beginTransaction();
     }
 
-    public void commitTransactionAndBeginNewOne() throws SQLException {
+    public void commitTransactionAndBeginNewOne() {
         commitTransaction();
         beginTransaction();
     }

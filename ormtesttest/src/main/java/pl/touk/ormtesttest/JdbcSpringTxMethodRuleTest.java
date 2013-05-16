@@ -21,7 +21,7 @@ import java.util.List;
 public class JdbcSpringTxMethodRuleTest {
 
     private ExampleEntity firstExampleEntity = null;
-    private ExampleEntityRowMapper rowMapper = new ExampleEntityRowMapper();
+    private final ExampleEntityRowMapper rowMapper = new ExampleEntityRowMapper();
 
     @Rule
     public JdbcSpringTxMethodRule txContext = new JdbcSpringTxMethodRule();

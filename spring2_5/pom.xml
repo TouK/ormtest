@@ -8,7 +8,6 @@
         <version>0.4.2-SNAPSHOT</version>
     </parent>
 
-    <groupId>pl.touk.ormtest</groupId>
     <artifactId>spring2_5</artifactId>
     <packaging>jar</packaging>
 

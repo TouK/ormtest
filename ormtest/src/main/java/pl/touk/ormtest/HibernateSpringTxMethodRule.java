@@ -68,11 +68,11 @@ import java.util.concurrent.ConcurrentMap;
 public class HibernateSpringTxMethodRule implements MethodRule {
 
     // Guards assignment of factories and hibernateTemplates:
-    private static final Object guard = new Object();
-    private static ConcurrentMap<Thread, SessionFactory> factories = new ConcurrentHashMap<Thread, SessionFactory>();
-    private static ConcurrentMap<Thread, HibernateTemplate> hibernateTemplates = new ConcurrentHashMap<Thread, HibernateTemplate>();
+    private final static Object guard = new Object();
+    private final static ConcurrentMap<Thread, SessionFactory> factories = new ConcurrentHashMap<Thread, SessionFactory>();
+    private final static ConcurrentMap<Thread, HibernateTemplate> hibernateTemplates = new ConcurrentHashMap<Thread, HibernateTemplate>();
 
-    private static ConcurrentMap<Thread, Session> sessions = new ConcurrentHashMap<Thread, Session>();
+    private final static ConcurrentMap<Thread, Session> sessions = new ConcurrentHashMap<Thread, Session>();
 
     /**
      * Can be overriden in subclasses and should return a data source. The returned data source is used in the default
@@ -229,10 +229,8 @@ public class HibernateSpringTxMethodRule implements MethodRule {
      * Creates a Hibernate session (invoking {@link #createSession()}) and begins a transaction
      * (invoking {@link #beginTransaction()}).
      * This method is annotated with JUnit's <code>Before</code> and TestNG <code>BeforeMethod</code> annotations.
-     *
-     * @throws Exception
      */
-    public void createSessionAndBeginTransaction() throws Exception {
+    public void createSessionAndBeginTransaction() {
         createSession();
         beginTransaction();
     }

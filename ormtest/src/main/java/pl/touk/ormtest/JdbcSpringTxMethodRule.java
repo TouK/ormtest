@@ -73,7 +73,7 @@ import java.util.concurrent.ConcurrentMap;
  */
 public class JdbcSpringTxMethodRule extends SpringTxMethodRule {
 
-    private static ConcurrentMap<Thread, JdbcTemplate> jdbcTemplates = new ConcurrentHashMap<Thread, JdbcTemplate>();
+    private final static ConcurrentMap<Thread, JdbcTemplate> jdbcTemplates = new ConcurrentHashMap<Thread, JdbcTemplate>();
 
     public JdbcTemplate getJdbcTemplate() {
         ensureTemplateInitialized();
