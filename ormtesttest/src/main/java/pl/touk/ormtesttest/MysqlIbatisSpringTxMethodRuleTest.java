@@ -21,8 +21,11 @@ public class MysqlIbatisSpringTxMethodRuleTest {
 
     @Before
     public void before() {
-        // The following isn't needed as mysql-init.sql is executed by default when MysqlIbatisSpringTxMethodRuleTest is used:
-        // SimpleJdbcTestUtils.executeSqlScript(new SimpleJdbcTemplate(txContext.getSqlMapClientTemplate().getDataSource()), new ClassPathResource("mysql-init.sql"), true);
+        // The following isn't needed as mysql-init.sql is executed
+        // by default when MysqlIbatisSpringTxMethodRuleTest is used:
+        // SimpleJdbcTestUtils.executeSqlScript(
+        //      new SimpleJdbcTemplate(txContext.getSqlMapClientTemplate().getDataSource()),
+        //      new ClassPathResource("mysql-init.sql"), true);
         firstExampleEntity = new ExampleEntity(0, "nameInBefore");
         txContext.getSqlMapClientTemplate().insert("insert", firstExampleEntity);
     }

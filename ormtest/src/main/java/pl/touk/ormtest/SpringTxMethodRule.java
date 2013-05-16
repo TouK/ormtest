@@ -6,6 +6,7 @@ package pl.touk.ormtest;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.h2.engine.Mode;
 import org.junit.rules.MethodRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -37,10 +38,17 @@ abstract public class SpringTxMethodRule implements MethodRule {
     protected static ConcurrentMap<Thread, DataSourceTransactionManager> txManagers = new ConcurrentHashMap<Thread, DataSourceTransactionManager>();
     protected static ConcurrentMap<String, Set<Thread>> threadsPerTestClass = new ConcurrentHashMap<String, Set<Thread>>();
 
+    private final String h2ModeOption;
+
     public SpringTxMethodRule() {
+        this(null);
+    }
+
+    public SpringTxMethodRule(String h2Mode) {
         String invokerClassName = findInvokingTestClass().getName();
         threadsPerTestClass.putIfAbsent(invokerClassName, new HashSet<Thread>());
         threadsPerTestClass.get(invokerClassName).add(Thread.currentThread());
+        this.h2ModeOption = getH2ModeOption(h2Mode);
     }
 
     public static Class findInvokingTestClass() {
@@ -103,13 +111,30 @@ abstract public class SpringTxMethodRule implements MethodRule {
 
         ds.setDriverClassName("org.h2.Driver");
         // If tests are run in parallel, then each thread should have its own database:
-        ds.setUrl("jdbc:h2:mem:db" + Thread.currentThread().hashCode() + ";DB_CLOSE_DELAY=-1;AUTOCOMMIT=OFF;MODE=MySQL");
+        ds.setUrl("jdbc:h2:mem:db" + Thread.currentThread().hashCode() +
+                ";DB_CLOSE_DELAY=-1;AUTOCOMMIT=OFF" + h2ModeOption);
         ds.setUsername("sa");
         ds.setPassword("");
 
         log.debug(getThreadPrefix() + "creating datasource to " + ds.getUrl());
 
         return ds;
+    }
+
+    private String getH2ModeOption(String h2Mode) {
+        String h2ModeOption;
+        if (h2Mode != null && h2Mode.length() > 0) {
+            if (h2Mode.indexOf(';') == -1) {
+                h2ModeOption = ";" + h2Mode;
+                Mode.getInstance(h2Mode);
+                log.warn("h2 compatibility mode " + h2Mode + " not found");
+            } else {
+                throw new IllegalArgumentException("h2Mode must not contain ';' character");
+            }
+        } else {
+            h2ModeOption = "";
+        }
+        return h2ModeOption;
     }
 
     abstract protected void ensureTemplateInitialized();

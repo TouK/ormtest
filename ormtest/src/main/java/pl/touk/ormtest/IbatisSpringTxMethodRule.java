@@ -138,7 +138,8 @@ public class IbatisSpringTxMethodRule extends SpringTxMethodRule {
     public IbatisSpringTxMethodRule() {
     }
 
-    public IbatisSpringTxMethodRule(String sqlMapConfig) {
+    public IbatisSpringTxMethodRule(String sqlMapConfig, String h2Mode) {
+        super(h2Mode);
         setSqlMapConfig(sqlMapConfig);
     }
 
