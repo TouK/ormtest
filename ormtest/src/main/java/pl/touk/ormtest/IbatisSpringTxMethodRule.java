@@ -5,12 +5,14 @@
 package pl.touk.ormtest;
 
 import com.ibatis.sqlmap.client.SqlMapClient;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.orm.ibatis.SqlMapClientFactoryBean;
 import org.springframework.orm.ibatis.SqlMapClientTemplate;
 
+import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -119,6 +121,8 @@ public class IbatisSpringTxMethodRule extends SpringTxMethodRule {
 
     private final static ConcurrentMap<Thread, SqlMapClientTemplate> sqlMapClientTemplates = new ConcurrentHashMap<Thread, SqlMapClientTemplate>();
 
+    private final ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
+
     public static void setSqlMapConfig(String... sqlMapConfig) {
         if (sqlMapConfig == null || sqlMapConfig.length == 0) {
             throw new IllegalArgumentException("sqlMapConfig must not be null or empty");
@@ -136,6 +140,10 @@ public class IbatisSpringTxMethodRule extends SpringTxMethodRule {
     }
 
     public IbatisSpringTxMethodRule() {
+    }
+
+    public IbatisSpringTxMethodRule(String sqlMapConfig) {
+        setSqlMapConfig(sqlMapConfig);
     }
 
     public IbatisSpringTxMethodRule(String sqlMapConfig, String h2Mode) {
@@ -169,11 +177,29 @@ public class IbatisSpringTxMethodRule extends SpringTxMethodRule {
     }
 
     private Resource[] createSqlMapConfigResourceArray() {
-        Resource[] array = new ClassPathResource[sqlMapConfig.length];
+        Resource[] array = new Resource[sqlMapConfig.length];
         for (int i = 0; i < sqlMapConfig.length; i++) {
-            array[i] = new ClassPathResource(sqlMapConfig[i]);
+            array[i] = loadSqlMapConfig(sqlMapConfig[i]);
         }
         return array;
+    }
+
+    private Resource loadSqlMapConfig(String sqlMapConfig) {
+        Resource resource = resourcePatternResolver.getResource(sqlMapConfig);
+        if (resource.exists()) {
+            return resource;
+        } else {
+            try {
+                Resource[] resources = resourcePatternResolver.getResources(sqlMapConfig);
+                switch (resources.length) {
+                    case 1: return resources[0];
+                    case 0: throw new RuntimeException("can't find resource: " + sqlMapConfig);
+                    default: throw new RuntimeException("more than one sqlMapConfig resource found by the given name: " + sqlMapConfig);
+                }
+            } catch (IOException e) {
+                throw new RuntimeException("can't find resource: " + sqlMapConfig);
+            }
+        }
     }
 
     /**

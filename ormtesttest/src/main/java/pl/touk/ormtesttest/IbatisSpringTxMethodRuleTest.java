@@ -21,7 +21,11 @@ public class IbatisSpringTxMethodRuleTest {
     private ExampleEntity firstExampleEntity = null;
 
     @Rule
-    public IbatisSpringTxMethodRule txContext = new IbatisSpringTxMethodRule();
+    public IbatisSpringTxMethodRule txContext = createIbatisSpringTxMethodRule();
+
+    protected IbatisSpringTxMethodRule createIbatisSpringTxMethodRule() {
+        return new IbatisSpringTxMethodRule();
+    }
 
     @Before
     public void before() throws SQLException {

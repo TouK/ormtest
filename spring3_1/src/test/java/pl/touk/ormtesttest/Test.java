@@ -16,6 +16,7 @@ import pl.touk.ormtesttest.resetmethodtestforsuiterunner.SecondSuite;
         SecondSuite.class,
         HibernateSpringTxMethodRuleTest.class,
         IbatisSpringTxMethodRuleTest.class,
+        CustomSqlMapConfigIbatisSpringTxMethodRuleTest.class,
         JdbcSpringTxMethodRuleTest.class,
         MysqlIbatisSpringTxMethodRuleTest.class
 })
