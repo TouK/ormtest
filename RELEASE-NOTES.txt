@@ -1,0 +1,1 @@
+0.5.0 - new IbatisSpringTxMethodRule constructor with string argument pointing to sqlMapConfig; this argument is resolved by PathMatchingResourcePatternResolver so it can contain patterns; IbatisSpringTxMethodRule.setSqlMapConfig now also accepts patterns
