@@ -10,7 +10,7 @@
 
     <groupId>pl.touk.ormtest</groupId>
     <artifactId>ormtest-parent</artifactId>
-    <version>0.4.5-SNAPSHOT</version>
+    <version>0.5.0</version>
     <packaging>pom</packaging>
 
     <modules>
@@ -60,7 +60,8 @@
         <connection>scm:git:git://github.com/TouK/ormtest.git</connection>
         <developerConnection>scm:git:git@github.com:TouK/ormtest.git</developerConnection>
         <url>https://github.com/TouK/ormtest</url>
-    </scm>
+      <tag>ormtest-parent-0.5.0</tag>
+  </scm>
 
     <repositories>
         <repository>
