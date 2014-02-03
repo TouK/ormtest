@@ -72,7 +72,7 @@
             <!-- Repository containing mysql-connector-mxj-fixed: -->
             <id>openmrs-repo</id>
             <name>OpenMRS Nexus Repository</name>
-            <url>http://mavenrepo.openmrs.org/nexus/content/repositories/public</url>
+            <url>http://mavenrepo.openmrs.org/nexus/content/repositories/thirdparty</url>
         </repository>
     </repositories>
 
