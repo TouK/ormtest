@@ -4,6 +4,7 @@
  */
 package pl.touk.ormtest;
 
+import com.google.common.base.Preconditions;
 import com.ibatis.sqlmap.client.SqlMapClient;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
@@ -13,6 +14,8 @@ import org.springframework.orm.ibatis.SqlMapClientFactoryBean;
 import org.springframework.orm.ibatis.SqlMapClientTemplate;
 
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -113,7 +116,7 @@ import java.util.concurrent.ConcurrentMap;
 public class IbatisSpringTxMethodRule extends SpringTxMethodRule {
 
     private final static String[] sqlMapConfigDefault = new String[]{"/sqlmap-config.xml"};
-    private static volatile String[] sqlMapConfig = sqlMapConfigDefault;
+    private static volatile Object[] sqlMapConfig = sqlMapConfigDefault;
 
     // Guards assignment of sqlMapClient:
     private final static Object guard = new Object();
@@ -121,34 +124,130 @@ public class IbatisSpringTxMethodRule extends SpringTxMethodRule {
 
     private final static ConcurrentMap<Thread, SqlMapClientTemplate> sqlMapClientTemplates = new ConcurrentHashMap<Thread, SqlMapClientTemplate>();
 
-    private final ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
+    private final PathMatchingResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
 
-    public static void setSqlMapConfig(String... sqlMapConfig) {
-        if (sqlMapConfig == null || sqlMapConfig.length == 0) {
-            throw new IllegalArgumentException("sqlMapConfig must not be null or empty");
-        }
-        for (int i = 0; i < sqlMapConfig.length; i++) {
-            if (sqlMapConfig[i] == null || sqlMapConfig[i].length() == 0) {
-                throw new IllegalArgumentException("sqlMapConfig[" + i + "] is null or empty");
+    public static void setSqlMapConfig(Object... sqlMapConfigs) {
+        sqlMapConfigs = Preconditions.checkNotNull(sqlMapConfigs, "sqlMapConfigs must not be null");
+        Preconditions.checkArgument(sqlMapConfigs.length > 0, "sqlMapConfigs must not be empty");
+        for (int i = 0; i < sqlMapConfigs.length; i++) {
+            Preconditions.checkNotNull(sqlMapConfigs[i], "sqlMapConfigs[%s] is null", i);
+            if (sqlMapConfigs[i] instanceof String) {
+                Preconditions.checkArgument(!((String) sqlMapConfigs[i]).isEmpty(), "sqlMapConfigs[%s] is an empty string", i);
+            } else if (sqlMapConfigs[i] instanceof List) {
+                validatePathAndAncestorDirectory(sqlMapConfigs, i);
+            } else {
+                Preconditions.checkArgument(sqlMapConfigs[i] instanceof Resource, "sqlMapConfigs[%s] must be one of: String, Resource, List of two Strings", i);
             }
         }
-        IbatisSpringTxMethodRule.sqlMapConfig = sqlMapConfig;
+        IbatisSpringTxMethodRule.sqlMapConfig = sqlMapConfigs;
     }
 
-    public static String[] getSqlMapConfig() {
+    private static void validatePathAndAncestorDirectory(Object[] sqlMapConfig, int index) {
+        List pathAndAncestorDirectory = (List) sqlMapConfig[index];
+        Preconditions.checkArgument(pathAndAncestorDirectory.size() == 2,
+                "sqlMapConfig[%s] is a string list of invalid size (%s but should be 2)", index, pathAndAncestorDirectory.size());
+        Preconditions.checkNotNull(pathAndAncestorDirectory.get(0),
+                "sqlMapConfig[%s] is a two-element list with invalid first element (null)", index);
+        Preconditions.checkArgument(pathAndAncestorDirectory.get(0) instanceof String,
+                "sqlMapConfig[%s] is a two-element list with invalid first element (%s)", index, pathAndAncestorDirectory.get(0).getClass());
+        Preconditions.checkArgument(!(pathAndAncestorDirectory.get(0).toString().isEmpty()),
+                "sqlMapConfig[%s] is a two-element list with invalid first element (an empty string)", index);
+        Preconditions.checkNotNull(pathAndAncestorDirectory.get(1),
+                "sqlMapConfig[%s] is a two-element list with invalid second element (null)", index);
+        Preconditions.checkArgument(pathAndAncestorDirectory.get(1) instanceof String,
+                "sqlMapConfig[%s] is a two-element list with invalid second element (%s)", index, pathAndAncestorDirectory.get(1).getClass());
+        Preconditions.checkArgument(!(pathAndAncestorDirectory.get(1).toString().isEmpty()),
+                "sqlMapConfig[%s] is a two-element list with invalid second element (an empty string)", index);
+    }
+
+    public static Object[] getSqlMapConfig() {
         return sqlMapConfig;
     }
 
+    /**
+     * Constructs an IbatisSpringTxMethodRule that reads the Ibatis configuration from the default location
+     * i.e. from the classpath resource "/sqlmap-config.xml".
+     */
     public IbatisSpringTxMethodRule() {
     }
 
-    public IbatisSpringTxMethodRule(String sqlMapConfig) {
+    /**
+     * Constructs an IbatisSpringTxMethodRule that reads the Ibatis configuration from the given Resource.
+     * 
+     * @param sqlMapConfig a Resource containing Ibatis configuration
+     */
+    public IbatisSpringTxMethodRule(Resource sqlMapConfig) {
         setSqlMapConfig(sqlMapConfig);
     }
 
-    public IbatisSpringTxMethodRule(String sqlMapConfig, String h2Mode) {
-        super(h2Mode);
+    /**
+     * Constructs an IbatisSpringTxMethodRule that reads the Ibatis configuration from the given path. If the given
+     * path is an Ant pattern (i.e. 
+     * {@link org.springframework.util.AntPathMatcher#isPattern(String) AntPathMatcher.isPattern(String)}
+     * returns true for this path)
+     * then it is resolved by {@link PathMatchingResourcePatternResolver#getResources(String)}.
+     * Otherwise it is resolved by {@link PathMatchingResourcePatternResolver#getResource(String)}.
+     *
+     * @param sqlMapConfigPath a path pointing to an Ibatis configuration
+     */
+    public IbatisSpringTxMethodRule(String sqlMapConfigPath) {
+        setSqlMapConfig(sqlMapConfigPath);
+    }
+
+    /**
+     * Constructs an IbatisSpringTxMethodRule that reads the Ibatis configuration from the given path
+     * (<code>fileSystemSqlMapConfigPath</code>) that is a descendant of <code>ancestorDirectory</code>
+     * and sets the H2 compatibility mode to the provided one.
+     * <p>
+     * If the given
+     * path is an Ant pattern (i.e.
+     * {@link org.springframework.util.AntPathMatcher#isPattern(String) AntPathMatcher.isPattern(String)}
+     * returns true for this path)
+     * then it is resolved by {@link PathMatchingResourcePatternResolver#getResources(String)}.
+     * Otherwise it is resolved by {@link PathMatchingResourcePatternResolver#getResource(String)}.
+     * After the above resolution only one resource should be a descendant of the given <code>ancestorDirectory</code>
+     * (here "descendant" means that absolute path of {@link org.springframework.core.io.Resource#getFile()}
+     * {@link String#contains(CharSequence) contains}
+     * <code>ancestorDirectory</code>) and if this is the case it will be used as the Ibatis configuration.
+     * Otherwise a <code>RuntimeException</code> is thrown.
+     * </p>
+     *
+     * @param fileSystemSqlMapConfigPath a path pointing to an Ibatis configuration
+     * @param ancestorDirectory file which is descendant of this directory will be used as Ibatis configuration
+     * @param h2CompatibilityMode H2 compatibility mode to be used (for example "Oracle", "MySQL" etc.)
+     */
+    public IbatisSpringTxMethodRule(String fileSystemSqlMapConfigPath, String ancestorDirectory, String h2CompatibilityMode) {
+        super(h2CompatibilityMode);
+        setSqlMapConfig(Arrays.asList(fileSystemSqlMapConfigPath, ancestorDirectory));
+    }
+
+    /**
+     * Constructs an IbatisSpringTxMethodRule that reads the Ibatis configuration from the given Resource and
+     * sets the H2 compatibility mode to the provided one.
+     *
+     * @param sqlMapConfig a Resource containing Ibatis configuration
+     * @param h2CompatibilityMode H2 compatibility mode to be used (for example "Oracle", "MySQL" etc.)
+     */
+    public IbatisSpringTxMethodRule(Resource sqlMapConfig, String h2CompatibilityMode) {
+        super(h2CompatibilityMode);
         setSqlMapConfig(sqlMapConfig);
+    }
+
+    /**
+     * Constructs an IbatisSpringTxMethodRule that reads the Ibatis configuration from the given path and
+     * sets the H2 compatibility mode to the provided one. If the given
+     * path is an Ant pattern (i.e.
+     * {@link org.springframework.util.AntPathMatcher#isPattern(String) AntPathMatcher.isPattern(String)}
+     * returns true for this path)
+     * then it is resolved by {@link PathMatchingResourcePatternResolver#getResources(String)}.
+     * Otherwise it is resolved by {@link PathMatchingResourcePatternResolver#getResource(String)}.
+     *
+     * @param sqlMapConfigPath a path pointing to an Ibatis configuration
+     * @param h2CompatibilityMode H2 compatibility mode to be used (for example "Oracle", "MySQL" etc.)
+     */
+    public IbatisSpringTxMethodRule(String sqlMapConfigPath, String h2CompatibilityMode) {
+        super(h2CompatibilityMode);
+        setSqlMapConfig(sqlMapConfigPath);
     }
 
     /**
@@ -176,7 +275,7 @@ public class IbatisSpringTxMethodRule extends SpringTxMethodRule {
         return sqlMapClientFactoryBean;
     }
 
-    private Resource[] createSqlMapConfigResourceArray() {
+    Resource[] createSqlMapConfigResourceArray() {
         Resource[] array = new Resource[sqlMapConfig.length];
         for (int i = 0; i < sqlMapConfig.length; i++) {
             array[i] = loadSqlMapConfig(sqlMapConfig[i]);
@@ -184,20 +283,65 @@ public class IbatisSpringTxMethodRule extends SpringTxMethodRule {
         return array;
     }
 
-    private Resource loadSqlMapConfig(String sqlMapConfig) {
-        Resource resource = resourcePatternResolver.getResource(sqlMapConfig);
-        if (resource.exists()) {
+    private Resource loadSqlMapConfig(Object sqlMapConfig) {
+        if (sqlMapConfig instanceof String) {
+            return loadSqlMapConfigFromPath(sqlMapConfig.toString(), null);
+        } else if (sqlMapConfig instanceof Resource) {
+            return (Resource) sqlMapConfig;
+        } else if (sqlMapConfig instanceof List) {
+            return loadSqlMapConfigFromPath(((List) sqlMapConfig).get(0).toString(), ((List) sqlMapConfig).get(1).toString());
+        } else {
+            throw new IllegalStateException("invalid sqlMapConfig: " + sqlMapConfig.getClass().getName());
+        }
+    }
+
+    private Resource loadSqlMapConfigFromPath(String sqlMapConfig, String ancestorDirectory) {
+        if (!resourcePatternResolver.getPathMatcher().isPattern(sqlMapConfig)) {
+            Resource resource = resourcePatternResolver.getResource(sqlMapConfig);
+            validateResource(sqlMapConfig, ancestorDirectory, resource);
             return resource;
         } else {
             try {
                 Resource[] resources = resourcePatternResolver.getResources(sqlMapConfig);
                 switch (resources.length) {
-                    case 1: return resources[0];
                     case 0: throw new RuntimeException("can't find resource: " + sqlMapConfig);
-                    default: throw new RuntimeException("more than one sqlMapConfig resource found by the given name: " + sqlMapConfig);
+                    default: return validateResource(sqlMapConfig, ancestorDirectory, resources);
                 }
             } catch (IOException e) {
                 throw new RuntimeException("can't find resource: " + sqlMapConfig);
+            }
+        }
+    }
+
+    private Resource validateResource(String sqlMapConfig, String ancestorDirectory, Resource... resources) {
+        Preconditions.checkArgument(resources.length > 0);
+        if (ancestorDirectory != null) {
+            Resource descendantResource = null;
+            for (Resource resource : resources) {
+                try {
+                    String resourcePath = resource.getFile().getAbsolutePath();
+                    if (resourcePath.contains(ancestorDirectory)) {
+                        if (descendantResource != null) {
+                            throw new RuntimeException("'" + sqlMapConfig + "' resolved to at least two resources containing '"
+                                    + ancestorDirectory + "': " + descendantResource.getFile().getAbsolutePath() + ", " + resourcePath);
+                        } else {
+                            descendantResource = resource;
+                        }
+                    }
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+            if (descendantResource != null) {
+                return descendantResource;
+            } else {
+                throw new RuntimeException("no descendant of '" + ancestorDirectory + "' among resources: " + Arrays.toString(resources));
+            }
+        } else {
+            if (resources.length == 1) {
+                return resources[0];
+            } else {
+                throw new RuntimeException("more than one sqlMapConfig resource found by the given name: " + sqlMapConfig);
             }
         }
     }

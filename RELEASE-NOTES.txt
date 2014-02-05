@@ -1,1 +1,2 @@
 0.5.0 - new IbatisSpringTxMethodRule constructor with string argument pointing to sqlMapConfig; this argument is resolved by PathMatchingResourcePatternResolver so it can contain patterns; IbatisSpringTxMethodRule.setSqlMapConfig now also accepts patterns
+0.6.0 - now IbatisSpringTxMethodRule.setSqlMapConfig accepts Strings, spring Resources and two-element lists (with pattern and ancestor directory); also there are new corresponding constructors for IbatisSpringTxMethodRule
