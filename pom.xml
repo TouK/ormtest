@@ -6,7 +6,7 @@
     <parent>
         <artifactId>top</artifactId>
         <groupId>pl.touk</groupId>
-        <version>1.0.5</version>
+        <version>1.0.7</version>
     </parent>
 
     <groupId>pl.touk.ormtest</groupId>
