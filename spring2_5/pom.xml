@@ -5,7 +5,7 @@
     <parent>
         <groupId>pl.touk.ormtest</groupId>
         <artifactId>ormtest-parent</artifactId>
-        <version>0.7.2-SNAPSHOT</version>
+        <version>0.7.2</version>
     </parent>
 
     <artifactId>spring2_5</artifactId>
