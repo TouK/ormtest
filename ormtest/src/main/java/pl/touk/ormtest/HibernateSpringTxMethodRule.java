@@ -25,36 +25,32 @@ import java.util.Properties;
  * Class for JUnit 4.9+ tests of Hibernate mappings in projects that use Spring-based DAOs.
  * <p/>
  * This class should be used as follows:
- * <pre><code>
+ * <pre>
  * public class ExampleTransactionalTest {
  *   <b>&#64;Rule
- *   public HibernateSpringTransactionalMethodRule txContext = new HibernateSpringTransactionalMethodRule();</b>
- * <p/>
+ *   public HibernateSpringTransactionalMethodRule txContext = new HibernateSpringTransactionalMethodRule();<br/>
  *   &#64;Before
  *   public void before() {
  *     // Prepare environment for every test in this class.
  *     // Transaction (new for every test) has already been open:
  *     txContext.getHibernateTemplate().persist(new ExampleEntity(2, "entity created in before()"));
- *   }
- * <p/>
+ *   }<br/>
  *   &#64;After
  *   public void after() {
  *     // Clean-up after every test in this class. Transaction for the last executed
  *     // test has not yet been close if it is needed:
  *     txContext.getHibernateTemplate().persist(new ExampleEntity(3, "entity created in after()"));
- *   }
- * <p/>
+ *   }<br/>
  *   &#64;Test
  *   public void shoudPersistEntity1() throws Exception {
  *       txContext.getHibernateTemplate().persist(new ExampleEntity(1, "name"));
- *   }
- * <p/>
+ *   }<br/>
  *   &#64;Test
  *   public void shoudPersistEntity2() throws Exception {
  *       txContext.getHibernateTemplate().persist(new ExampleEntity(1, "name"));
  *   }
  * }
- * </code></pre>
+ * </pre>
  * In above example, if the two tests are executed in parallel then each of them will be executed on different
  * in-memory databases.
  *
