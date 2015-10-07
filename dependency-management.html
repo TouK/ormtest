@@ -3,7 +3,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-    <title>OrmTest Parent - Project Team</title>
+    <title>OrmTest Parent - Project Dependency Management</title>
     <style type="text/css" media="all">
       @import url("./css/maven-base.css");
       @import url("./css/maven-theme.css");
@@ -75,8 +75,8 @@
                           <a href="dependency-info.html" title="Dependency Information">Dependency Information</a>
             </li>
                       <li class="none">
-                          <a href="dependency-management.html" title="Dependency Management">Dependency Management</a>
-            </li>
+            <strong>Dependency Management</strong>
+          </li>
                       <li class="none">
                           <a href="distribution-management.html" title="Distribution Management">Distribution Management</a>
             </li>
@@ -99,8 +99,8 @@
                           <a href="plugins.html" title="Project Plugins">Project Plugins</a>
             </li>
                       <li class="none">
-            <strong>Project Team</strong>
-          </li>
+                          <a href="team-list.html" title="Project Team">Project Team</a>
+            </li>
                       <li class="none">
                           <a href="source-repository.html" title="Source Repository">Source Repository</a>
             </li>
@@ -120,28 +120,23 @@
     <div id="bodyColumn">
       <div id="contentBox">
         <div class="section">
-<h2>The Team<a name="The_Team"></a></h2><a name="The_Team"></a>
-<p>A successful project requires many people to play many roles. Some members write code or documentation, while others are valuable as testers, submitting patches and suggestions.</p>
-<p>The team is comprised of Members and Contributors. Members have direct access to the source of a project and actively evolve the code-base. Contributors improve the project through submission of patches and suggestions to the Members. The number of Contributors to the project is unbounded. Get involved today. All contributions to the project are greatly appreciated.</p>
+<h2>Project Dependency Management<a name="Project_Dependency_Management"></a></h2><a name="Project_Dependency_Management"></a>
 <div class="section">
-<h3>Members<a name="Members"></a></h3><a name="Members"></a>
-<p>The following is a list of developers with commit privileges that have directly contributed to the project in one way or another.</p>
+<h3>compile<a name="compile"></a></h3><a name="compile"></a>
+<p>The following is a list of compile dependencies in the DependencyManagement of this project. These dependencies can be included in the submodules to compile and run the submodule:</p>
 <table border="0" class="bodyTable">
 <tr class="a">
-<th>Image</th>
-<th>Id</th>
-<th>Name</th>
-<th>Email</th>
-<th>Time Zone</th></tr>
+<th>GroupId</th>
+<th>ArtifactId</th>
+<th>Version</th>
+<th>Type</th>
+<th>License</th></tr>
 <tr class="b">
-<td><img src="http://www.gravatar.com/avatar/d8cb4b58036e6236606b77d5337d1891?d=mm&amp;s=60" alt="" /></td>
-<td><a name="sokol"></a>sokol</td>
-<td>Micha&#x142; Soko&#x142;owski</td>
-<td><a class="externalLink" href="mailto:msk@touk.pl">msk@touk.pl</a></td>
-<td>+1</td></tr></table></div>
-<div class="section">
-<h3>Contributors<a name="Contributors"></a></h3><a name="Contributors"></a>
-<p>There are no contributors listed for this project. Please check back again later.</p></div></div>
+<td>junit</td>
+<td><a class="externalLink" href="http://junit.org">junit</a></td>
+<td>4.9</td>
+<td>jar</td>
+<td><a class="externalLink" href="http://www.opensource.org/licenses/cpl1.0.txt">Common Public License Version 1.0</a></td></tr></table></div></div>
       </div>
     </div>
     <div class="clear">
