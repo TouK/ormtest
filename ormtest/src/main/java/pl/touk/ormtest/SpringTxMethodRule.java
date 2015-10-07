@@ -7,10 +7,10 @@ package pl.touk.ormtest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.h2.engine.Mode;
-import org.junit.rules.MethodRule;
+import org.junit.rules.TestRule;
+import org.junit.runner.Description;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
-import org.junit.runners.model.FrameworkMethod;
 import org.junit.runners.model.Statement;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -25,11 +25,11 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * Base abstract class for JUnit 4.8+ testing of Jdbc and Ibatis Spring-based DAOs.
+ * Base abstract class for JUnit 4.9+ testing of Jdbc and Ibatis Spring-based DAOs.
  *
  * @author <a href="mailto:msk@touk.pl">Michał Sokołowski</a>
  */
-abstract public class SpringTxMethodRule implements MethodRule {
+abstract public class SpringTxMethodRule implements TestRule {
 
     private static final Log log = LogFactory.getLog(SpringTxMethodRule.class);
 
@@ -66,7 +66,7 @@ abstract public class SpringTxMethodRule implements MethodRule {
         throw new RuntimeException("first test class name not found");
     }
 
-    public static Set<Thread> getThreads(Class testClassOrSuiteClass) {
+    protected static Set<Thread> getThreads(Class testClassOrSuiteClass) {
         Set<Thread> threads = new HashSet<Thread>();
         for (Class c: getTestClasses(testClassOrSuiteClass)) {
             if (threadsPerTestClass.get(c.getName()) != null) {
@@ -175,7 +175,7 @@ abstract public class SpringTxMethodRule implements MethodRule {
         }
     }
 
-    public final Statement apply(final Statement base, FrameworkMethod method, Object target) {
+    public final Statement apply(final Statement base, Description description) {
         return new Statement() {
             public void evaluate() throws Throwable {
                 log.debug(getThreadPrefix() + "method rule begins");

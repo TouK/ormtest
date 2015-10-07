@@ -16,7 +16,6 @@
     </properties>
 
     <dependencies>
-
         <dependency>
             <groupId>pl.touk.ormtest</groupId>
             <artifactId>ormtest</artifactId>
@@ -83,7 +82,6 @@
             <version>3.4.GA</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
 </project>

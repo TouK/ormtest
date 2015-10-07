@@ -8,7 +8,6 @@ import com.google.common.base.Preconditions;
 import com.ibatis.sqlmap.client.SqlMapClient;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
-import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.orm.ibatis.SqlMapClientFactoryBean;
 import org.springframework.orm.ibatis.SqlMapClientTemplate;

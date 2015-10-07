@@ -21,14 +21,9 @@ public class HibernateSpringTxMethodRuleTest {
         // during tests. This module contains hibernate entity class (ExampleEntity) so the jar also contains it.
         // Searching entity classes through package scanning mechanism (by default HibernateSpringTxMethodRule uses
         // this mechanism) doesn't work in case of jars (at least not always; for instance see
-        // http://articles.carbonrider.com/2011/02/27/spring-hibernate-annotation-entity-classes-in-jar-not-recognised-xxx-is-not-mapped/).
+        // http://www.carbonrider.com/2011/02/27/spring-hibernate-annotation-entity-classes-in-jar-not-recognised-xxx-is-not-mapped/).
         // Hence explicitly list entity classes:
         return new HibernateSpringTxMethodRuleWithExapmleEntity();
-    }
-
-    @AfterClass
-    public static void afterClass() {
-        HibernateSpringTxMethodRule.resetThreadsForCurrentTestClass();
     }
 
     @Before

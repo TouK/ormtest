@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -24,8 +25,8 @@
 
     <name>OrmTest Parent</name>
     <description>
-        OrmTest is a java framework for JUnit 4.8+ testing of
-        object-relation mappings in projects that use Spring-based DAOs.
+        OrmTest is a java framework for easy JUnit 4.9+ testing of object-relation mappings in projects that use
+        Spring-based DAOs. OrmTest eliminates the need to create spring context in transactional tests.
     </description>
     <url>http://touk.github.com/ormtest/</url>
     <inceptionYear>2010</inceptionYear>
@@ -60,8 +61,8 @@
         <connection>scm:git:git://github.com/TouK/ormtest.git</connection>
         <developerConnection>scm:git:git@github.com:TouK/ormtest.git</developerConnection>
         <url>https://github.com/TouK/ormtest</url>
-      <tag>HEAD</tag>
-  </scm>
+        <tag>HEAD</tag>
+    </scm>
 
     <repositories>
         <repository>
@@ -155,6 +156,16 @@
             </extension>
         </extensions>
     </build>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.9</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
