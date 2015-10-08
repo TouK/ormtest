@@ -23,7 +23,7 @@ import java.util.Properties;
 
 /**
  * Class for JUnit 4.9+ tests of Hibernate mappings in projects that use Spring-based DAOs.
- * <p/>
+ * <p>
  * This class should be used as follows:
  * <pre>
  * public class ExampleTransactionalTest {
@@ -65,7 +65,7 @@ public class HibernateSpringTxMethodRule implements TestRule {
     /**
      * Returns a data source. The returned data source is used in the default
      * implementation of {@link #annotationSessionFactoryBean()}.
-     * <p/>
+     * <p>
      * The default implementation of this method returns a data
      * source for an in-memory HSQL database (with sid being <code>"test"</code> followed by the current thread's
      * hash code, with user name <code>sa</code> and no password).
@@ -87,7 +87,7 @@ public class HibernateSpringTxMethodRule implements TestRule {
     /**
      * Returns Hibernate properties. Returned properties are used in the
      * default implementation of {@link #annotationSessionFactoryBean()}.
-     * <p/>
+     * <p>
      * The default implementation of this method returns following key-value pairs:
      * <dl>
      * <dt><code>hibernate.connection.autocommit</code></dt>
@@ -99,7 +99,7 @@ public class HibernateSpringTxMethodRule implements TestRule {
      * <code>validate</code> (otherwise)
      * </dd>
      * </dl>
-     * <p/>
+     * <p>
      * Can be overridden in subclasses.
      *
      * @return Hibernate properties to be used during tests
@@ -118,7 +118,7 @@ public class HibernateSpringTxMethodRule implements TestRule {
     /**
      * Returns an {@link AnnotationSessionFactoryBean}. The returned factory
      * is used in the default implementation of {@link #sessionFactory()}.
-     * <p/>
+     * <p>
      * The default implementation of this method
      * returns an <code>AnnotationSessionFactoryBean</code> initialized in the following manner.
      * <ol>
@@ -133,7 +133,7 @@ public class HibernateSpringTxMethodRule implements TestRule {
      * {@link AnnotationSessionFactoryBean#afterPropertiesSet afterPropertiesSet()}
      * is invoked.
      * </ol>
-     * <p/>
+     * <p>
      * Can be overridden in subclasses.
      *
      * @return an <code>AnnotationSessionFactoryBean</code>
@@ -166,9 +166,9 @@ public class HibernateSpringTxMethodRule implements TestRule {
     /**
      * Returns an array of annotated classes to be used by Hibernate. The returned array is used by the default
      * implementation of {@link #annotationSessionFactoryBean()}.
-     * <p/>
+     * <p>
      * The default implementation of this method returns <code>null</code>.
-     * <p/>
+     * <p>
      * Can be overridden in subclasses.
      *
      * @return annotated classes to be used by Hibernate
@@ -179,9 +179,9 @@ public class HibernateSpringTxMethodRule implements TestRule {
 
     /**
      * Returns a package containing annotated classes to be processed by Hibernate.
-     * <p/>
+     * <p>
      * The default implementation returns an empty string which means that all packages will be scanned.
-     * <p/>
+     * <p>
      * The returned package is used in the default implementation
      * of {@link #annotationSessionFactoryBean()} as a search location for annotated classes. The default
      * implementation is suitable in most cases but also not optimal in most cases as annotated classes are probably
@@ -195,10 +195,10 @@ public class HibernateSpringTxMethodRule implements TestRule {
 
     /**
      * Returns a session factory that will be used to create a Hibernate session before every JUnit or TestNG test.
-     * <p/>
+     * <p>
      * The default implementation returns the session factory created by invoking
      * {@link #annotationSessionFactoryBean()}.{@link AnnotationSessionFactoryBean#getObject getObject()}.
-     * <p/>
+     * <p>
      * Can be overridden in subclasses.
      *
      * @return session factory that will be used to create a Hibernate session before every JUnit or TestNG test
@@ -209,7 +209,7 @@ public class HibernateSpringTxMethodRule implements TestRule {
 
     /**
      * Begins a new transaction.
-     * <p/>
+     * <p>
      * This method is idempotent - it will create only one transaction even if invoked more than once.
      */
     public void beginTransaction() {
@@ -220,7 +220,7 @@ public class HibernateSpringTxMethodRule implements TestRule {
 
     /**
      * Rollbacks the current transaction.
-     * <p/>
+     * <p>
      * This method can rollback the transaction started by this
      * rule. It can also rollback any transaction started manually through {@link #beginTransaction()}.
      */
@@ -232,7 +232,7 @@ public class HibernateSpringTxMethodRule implements TestRule {
 
     /**
      * Commits the current transaction.
-     * <p/>
+     * <p>
      * This method can commit the transaction started by this
      * rule. It can also commit any transaction started manually through {@link #beginTransaction()}.
      */
@@ -244,7 +244,7 @@ public class HibernateSpringTxMethodRule implements TestRule {
 
     /**
      * Flashes the current Hibernate session.
-     * <p/>
+     * <p>
      * Some Hibernate mapping errors can be detected only after a
      * flush, i.e. after actual database operations are invoked.
      */
@@ -253,6 +253,15 @@ public class HibernateSpringTxMethodRule implements TestRule {
             session.get().flush();
             session.get().clear();
         }
+    }
+
+    /**
+     * Closes underlying Hibernate session.
+     * <p>
+     * From now on it will be impossible to begin a new transaction within the current test.
+     */
+    public void close() {
+        closeAndRemoveSession();
     }
 
     public HibernateTemplate getHibernateTemplate() {

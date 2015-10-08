@@ -22,82 +22,64 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * Class for JUnit 4.8+ testing of Ibatis mappings in projects that use Spring-based DAOs. This class uses H2 in-memory
  * database. By default it searches <i>sqlmap-config.xml</i> file on the classpath to configure Ibatis.
- * <br>
+ * <p>
  * Tests using this class are very fast because they don't load spring application context although they can be
  * used to test spring DAOs.
- * <br>
+ * <p>
  * This class is very simple to use. An example is presented below. Although the example doesn't use
  * spring DAOs it would be very similar if it did. The spring DAOs, which extend Spring's
  * <i>SqlMapClientDaoSupport</i>, need an <i>SqlMapClientTemplate</i> which is in fact referenced in the example below
  * (bold fragment in method <i>before</i>).
- * <pre><code>
- *
+ * <pre>
  * public class TransactionalTest {
- *
- *   <b>&#64;Rule
- *   public IbatisSpringTxMethodRule txContext = new IbatisSpringTxMethodRule();</b>
- *
- *   &#64;Before
- *   public void before() {
- *     // Prepare environment for every test in this class (transaction (new for every test) has already been open):
- *     SimpleJdbcTestUtils.executeSqlScript(new SimpleJdbcTemplate(<b>txContext.getSqlMapClientTemplate()</b>.getDataSource()),
- *                                          new ClassPathResource("some-script-creating-database.sql"),
- *                                          false);
- *     <b>txContext</b>.getSqlMapClientTemplate().insert("insert", new ExampleEntity(1, "some name"));
- *   }
- *
- *   &#64;After
- *   public void after() {
- *     // Clean-up after every test in this class. Transaction for the last executed test has not yet been closed if it is needed:
- *     <b>txContext.getSqlMapClientTemplate()</b>.insert("insert", new ExampleEntity(1, "some other name"));
- *   }
- *
- *   &#64;Test
- *   public void shoudPersistEntityA() throws Exception {
- *     <b>txContext.getSqlMapClientTemplate()</b>.insert("insert", new ExampleEntity(2, "name"));
- *   }
- *
- *   &#64;Test
- *   public void shoudPersistEntityB() throws Exception {
- *     <b>txContext.getSqlMapClientTemplate()</b>.insert("insert", new ExampleEntity(2, "name"));
- *   }
+ *    <b>&#64;Rule
+ *    public IbatisSpringTxMethodRule txContext = new IbatisSpringTxMethodRule();</b><br/>
+ *    &#64;Before
+ *    public void prepareEnvironmentForEveryTest() {
+ *       // Transaction (new for every test) has already been open.
+ *       SimpleJdbcTestUtils.executeSqlScript(
+ *          new SimpleJdbcTemplate(<b>txContext.getSqlMapClientTemplate()</b>.getDataSource()),
+ *          new ClassPathResource("some-script-creating-database.sql"),
+ *          false);
+ *       <b>txContext</b>.getSqlMapClientTemplate().insert("insert", new ExampleEntity(1, "some name"));
+ *    }<br/>
+ *    &#64;After
+ *    public void cleanUpAfterEveryTest() {
+ *       // Transaction for the last executed test has not yet been closed if it is needed.
+ *       <b>txContext.getSqlMapClientTemplate()</b>.insert("insert", new ExampleEntity(1, "some other name"));
+ *    }<br/>
+ *    &#64;Test
+ *    public void shoudPersistEntityA() throws Exception {
+ *       <b>txContext.getSqlMapClientTemplate()</b>.insert("insert", new ExampleEntity(2, "name"));
+ *    }<br/>
+ *    &#64;Test
+ *    public void shoudPersistEntityB() throws Exception {
+ *       <b>txContext.getSqlMapClientTemplate()</b>.insert("insert", new ExampleEntity(2, "name"));
+ *    }
  * }
- * </code></pre>
- *
+ * </pre>
  * In above example, if the two tests are executed in parallel then each of them will be executed on different,
  * completely independent in-memory H2 databases. For the above example to work a file <i>sqlmap-config.xml</i>
  * must be on the classpath. This file can look for example like this:
- *
- * <code><pre>
- * &lt;?xml version="1.0" encoding="UTF-8"?&gt;
- * &lt;!DOCTYPE sqlMapConfig PUBLIC "-//iBATIS.com//DTD SQL Map Config 2.0//EN"
- *   "http://www.ibatis.com/dtd/sql-map-config-2.dtd"&gt;
+ * <pre>
  * &lt;sqlMapConfig&gt;
  *   &lt;sqlMap resource="example-entity.xml"/&gt;
  * &lt;/sqlMapConfig&gt;
- * </pre></code>
- * 
+ * </pre>
  * The above sqlmap configuration references one sql map file,
  * <i>example-entity.xml</i>, which can look for example like this:
- *
- * <code><pre>
- * &lt;?xml version="1.0" encoding="UTF-8"?&gt;
- * &lt;!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://www.ibatis.com/dtd/sql-map-2.dtd"&gt;
+ * <pre>
  * &lt;sqlMap namespace="exampleEntity"&gt;
- *
  *   &lt;resultMap class="pl.touk.ormtest.ExampleEntity" id="exampleEntityResult"&gt;
  *     &lt;result property="id" column="id" /&gt;
  *     &lt;result property="name" column="name" /&gt;
- *   &lt;/resultMap&gt;
- *
+ *   &lt;/resultMap&gt;<br/>
  *   &lt;select id="selectAll" resultMap="exampleEntity.exampleEntityResult"&gt;
  *     SELECT * FROM EXAMPLEENTITIES
- *   &lt;/select&gt;
- *
+ *   &lt;/select&gt;<br/>
  *   &lt;select id="select" resultMap="exampleEntity.exampleEntityResult"&gt;
  *     SELECT * FROM EXAMPLEENTITIES WHERE id = #id#
- *   &lt;/select&gt;
- *
+ *   &lt;/select&gt;<br/>
  *   &lt;insert id="insert" parameterClass="pl.touk.ormtest.ExampleEntity"&gt;
  *     INSERT INTO EXAMPLEENTITIES (name) VALUES (#name#)
  *     &lt;selectKey keyProperty="id" resultClass="int"&gt;
@@ -105,8 +87,7 @@ import java.util.concurrent.ConcurrentMap;
  *     &lt;/selectKey&gt;
  *   &lt;/insert&gt;
  * &lt;/sqlMap&gt;
- * </pre></code>
- *
+ * </pre>
  * And of course an <i>ExampleEntity</i> plain old java bean (POJO) with <i>id</i> and <i>name</i>
  * properties would be needed for the above example to work.
  *
@@ -172,7 +153,7 @@ public class IbatisSpringTxMethodRule extends SpringTxMethodRule {
 
     /**
      * Constructs an IbatisSpringTxMethodRule that reads the Ibatis configuration from the given Resource.
-     * 
+     *
      * @param sqlMapConfig a Resource containing Ibatis configuration
      */
     public IbatisSpringTxMethodRule(Resource sqlMapConfig) {
@@ -181,7 +162,7 @@ public class IbatisSpringTxMethodRule extends SpringTxMethodRule {
 
     /**
      * Constructs an IbatisSpringTxMethodRule that reads the Ibatis configuration from the given path. If the given
-     * path is an Ant pattern (i.e. 
+     * path is an Ant pattern (i.e.
      * {@link org.springframework.util.AntPathMatcher#isPattern(String) AntPathMatcher.isPattern(String)}
      * returns true for this path)
      * then it is resolved by {@link PathMatchingResourcePatternResolver#getResources(String)}.
@@ -212,8 +193,8 @@ public class IbatisSpringTxMethodRule extends SpringTxMethodRule {
      * </p>
      *
      * @param fileSystemSqlMapConfigPath a path pointing to an Ibatis configuration
-     * @param ancestorDirectory file which is descendant of this directory will be used as Ibatis configuration
-     * @param h2CompatibilityMode H2 compatibility mode to be used (for example "Oracle", "MySQL" etc.)
+     * @param ancestorDirectory          file which is descendant of this directory will be used as Ibatis configuration
+     * @param h2CompatibilityMode        H2 compatibility mode to be used (for example "Oracle", "MySQL" etc.)
      */
     public IbatisSpringTxMethodRule(String fileSystemSqlMapConfigPath, String ancestorDirectory, String h2CompatibilityMode) {
         super(h2CompatibilityMode);
@@ -224,7 +205,7 @@ public class IbatisSpringTxMethodRule extends SpringTxMethodRule {
      * Constructs an IbatisSpringTxMethodRule that reads the Ibatis configuration from the given Resource and
      * sets the H2 compatibility mode to the provided one.
      *
-     * @param sqlMapConfig a Resource containing Ibatis configuration
+     * @param sqlMapConfig        a Resource containing Ibatis configuration
      * @param h2CompatibilityMode H2 compatibility mode to be used (for example "Oracle", "MySQL" etc.)
      */
     public IbatisSpringTxMethodRule(Resource sqlMapConfig, String h2CompatibilityMode) {
@@ -241,7 +222,7 @@ public class IbatisSpringTxMethodRule extends SpringTxMethodRule {
      * then it is resolved by {@link PathMatchingResourcePatternResolver#getResources(String)}.
      * Otherwise it is resolved by {@link PathMatchingResourcePatternResolver#getResource(String)}.
      *
-     * @param sqlMapConfigPath a path pointing to an Ibatis configuration
+     * @param sqlMapConfigPath    a path pointing to an Ibatis configuration
      * @param h2CompatibilityMode H2 compatibility mode to be used (for example "Oracle", "MySQL" etc.)
      */
     public IbatisSpringTxMethodRule(String sqlMapConfigPath, String h2CompatibilityMode) {
@@ -303,8 +284,10 @@ public class IbatisSpringTxMethodRule extends SpringTxMethodRule {
             try {
                 Resource[] resources = resourcePatternResolver.getResources(sqlMapConfig);
                 switch (resources.length) {
-                    case 0: throw new RuntimeException("can't find resource: " + sqlMapConfig);
-                    default: return validateResource(sqlMapConfig, ancestorDirectory, resources);
+                    case 0:
+                        throw new RuntimeException("can't find resource: " + sqlMapConfig);
+                    default:
+                        return validateResource(sqlMapConfig, ancestorDirectory, resources);
                 }
             } catch (IOException e) {
                 throw new RuntimeException("can't find resource: " + sqlMapConfig);
@@ -396,7 +379,7 @@ public class IbatisSpringTxMethodRule extends SpringTxMethodRule {
         }
         Set<Thread> threads = getThreads(findInvokingTestClass());
         if (threads != null && threads.size() > 0) {
-            for (Thread t: threads) {
+            for (Thread t : threads) {
                 sqlMapClientTemplates.remove(t);
                 txManagers.remove(t);
                 txStatuses.remove(t);
