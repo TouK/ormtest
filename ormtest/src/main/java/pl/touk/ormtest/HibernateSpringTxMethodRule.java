@@ -264,6 +264,16 @@ public class HibernateSpringTxMethodRule implements TestRule {
         closeAndRemoveSession();
     }
 
+    public void rollbackAndClose() {
+        rollback();
+        close();
+    }
+
+    public void commitAndClose() {
+        commit();
+        close();
+    }
+
     public HibernateTemplate getHibernateTemplate() {
         ensureSessionFactoryInitialized();
         return hibernateTemplate.get();
