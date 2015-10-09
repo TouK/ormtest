@@ -1,23 +1,25 @@
 OrmTest - Object Relation Mapping Testing
 
+ What is it?
+
+  OrmTest is a java framework for easy JUnit 4.9+ testing of object-relation mappings in projects that use
+  Spring-based DAOs. OrmTest eliminates the need to create spring contexts during transactional tests.
+  This way tests run much faster and are much simpler.
+
+ Javadoc
+
+ http://touk.github.io/ormtest/
+
  Author
 
   OrmTest was created in TouK organization by Michal Sokolowski.
   TouK: http://touk.pl, info@touk.pl
   Michal Sokolowski: msk@touk.pl
 
- Inception date
-
-  Project OrmTest was started in 2011.
-
  Project license
 
   OrmTest is an open source project released under the Apache License,
   Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0).
-
- What is it?
-
-  OrmTest is a java framework for JUnit 4.8+ testing of object-relation mappings in projects that use Spring-based DAOs.
 
  Where it can be found
 
