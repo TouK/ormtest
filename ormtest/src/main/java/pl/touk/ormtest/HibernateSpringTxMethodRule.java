@@ -57,10 +57,10 @@ import java.util.Properties;
  * @author <a href="mailto:msk@touk.pl">Michał Sokołowski</a>
  */
 public class HibernateSpringTxMethodRule implements TestRule {
-    private final static ThreadLocal<SessionFactory> factory = new ThreadLocal<SessionFactory>();
-    private final static ThreadLocal<HibernateTemplate> hibernateTemplate = new ThreadLocal<HibernateTemplate>();
-    private final static ThreadLocal<Session> session = new ThreadLocal<Session>();
-    private final static ThreadLocal<Class<?>> lastTestClass = new ThreadLocal<Class<?>>();
+    private final static ThreadLocal<SessionFactory> FACTORY = new ThreadLocal<SessionFactory>();
+    private final static ThreadLocal<HibernateTemplate> HIBERNATE_TEMPLATE = new ThreadLocal<HibernateTemplate>();
+    private final static ThreadLocal<Session> SESSION = new ThreadLocal<Session>();
+    private final static ThreadLocal<Class<?>> LAST_TEST_CLASS = new ThreadLocal<Class<?>>();
 
     /**
      * Returns a data source. The returned data source is used in the default
@@ -213,8 +213,8 @@ public class HibernateSpringTxMethodRule implements TestRule {
      * This method is idempotent - it will create only one transaction even if invoked more than once.
      */
     public void beginTransaction() {
-        if (session.get() != null) {
-            session.get().beginTransaction();
+        if (SESSION.get() != null) {
+            SESSION.get().beginTransaction();
         }
     }
 
@@ -225,8 +225,8 @@ public class HibernateSpringTxMethodRule implements TestRule {
      * rule. It can also rollback any transaction started manually through {@link #beginTransaction()}.
      */
     public void rollback() {
-        if (session.get() != null && session.get().getTransaction().isActive()) {
-            session.get().getTransaction().rollback();
+        if (SESSION.get() != null && SESSION.get().getTransaction().isActive()) {
+            SESSION.get().getTransaction().rollback();
         }
     }
 
@@ -237,8 +237,8 @@ public class HibernateSpringTxMethodRule implements TestRule {
      * rule. It can also commit any transaction started manually through {@link #beginTransaction()}.
      */
     public void commit() {
-        if (session.get() != null && session.get().getTransaction().isActive()) {
-            session.get().getTransaction().commit();
+        if (SESSION.get() != null && SESSION.get().getTransaction().isActive()) {
+            SESSION.get().getTransaction().commit();
         }
     }
 
@@ -249,9 +249,9 @@ public class HibernateSpringTxMethodRule implements TestRule {
      * flush, i.e. after actual database operations are invoked.
      */
     public void flush() {
-        if (session.get() != null) {
-            session.get().flush();
-            session.get().clear();
+        if (SESSION.get() != null) {
+            SESSION.get().flush();
+            SESSION.get().clear();
         }
     }
 
@@ -275,8 +275,11 @@ public class HibernateSpringTxMethodRule implements TestRule {
     }
 
     public HibernateTemplate getHibernateTemplate() {
-        ensureSessionFactoryInitialized();
-        return hibernateTemplate.get();
+        return new ProxyHibernateTemplate(HIBERNATE_TEMPLATE);
+    }
+
+    public SessionFactory getSessionFactory() {
+        return new ProxySessionFactory(FACTORY);
     }
 
     private String detectUrl(DataSource ds) {
@@ -296,38 +299,37 @@ public class HibernateSpringTxMethodRule implements TestRule {
         }
     }
 
-    private void createSession(Class<?> currentTest) {
-        detectAndHandleTestClassChange(currentTest);
-        if (session.get() == null) {
+    private void createSession() {
+        if (SESSION.get() == null) {
             ensureSessionFactoryInitialized();
-            Session session = SessionFactoryUtils.getSession(factory.get(), true);
-            HibernateSpringTxMethodRule.session.set(session);
-            TransactionSynchronizationManager.bindResource(factory.get(), new SessionHolder(session));
+            Session session = SessionFactoryUtils.getSession(FACTORY.get(), true);
+            HibernateSpringTxMethodRule.SESSION.set(session);
+            TransactionSynchronizationManager.bindResource(FACTORY.get(), new SessionHolder(session));
         } else {
             throw new IllegalStateException("non-null session unexpected");
         }
     }
 
-    private void detectAndHandleTestClassChange(Class<?> currentTest) {
-        if (lastTestClass.get() != null && lastTestClass.get() != currentTest) {
-            factory.remove();
-            hibernateTemplate.remove();
+    private void detectAndHandleTestClassChangeForCurrentThread(Class<?> currentTest) {
+        if (LAST_TEST_CLASS.get() != null && LAST_TEST_CLASS.get() != currentTest) {
+            FACTORY.remove();
+            HIBERNATE_TEMPLATE.remove();
         }
-        lastTestClass.set(currentTest);
+        LAST_TEST_CLASS.set(currentTest);
     }
 
     private void closeAndRemoveSession() {
-        if (session.get() != null) {
-            TransactionSynchronizationManager.unbindResource(factory.get());
-            session.get().close();
-            session.remove();
+        if (SESSION.get() != null) {
+            TransactionSynchronizationManager.unbindResource(FACTORY.get());
+            SESSION.get().close();
+            SESSION.remove();
         }
     }
 
     private void ensureSessionFactoryInitialized() {
-        if (factory.get() == null) {
-            factory.set(sessionFactory());
-            hibernateTemplate.set(new HibernateTemplate(factory.get()));
+        if (FACTORY.get() == null) {
+            FACTORY.set(sessionFactory());
+            HIBERNATE_TEMPLATE.set(new HibernateTemplate(FACTORY.get()));
         }
     }
 
@@ -335,7 +337,8 @@ public class HibernateSpringTxMethodRule implements TestRule {
         return new Statement() {
             public void evaluate() throws Throwable {
                 try {
-                    createSession(description.getTestClass());
+                    detectAndHandleTestClassChangeForCurrentThread(description.getTestClass());
+                    createSession();
                     beginTransaction();
                     statement.evaluate();
                 } finally {
