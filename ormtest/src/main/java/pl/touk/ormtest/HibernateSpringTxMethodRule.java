@@ -14,6 +14,7 @@ import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.orm.hibernate3.SessionFactoryUtils;
 import org.springframework.orm.hibernate3.SessionHolder;
 import org.springframework.orm.hibernate3.annotation.AnnotationSessionFactoryBean;
+import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import javax.sql.DataSource;
@@ -22,37 +23,39 @@ import java.lang.reflect.Method;
 import java.util.Properties;
 
 /**
- * Class for JUnit 4.9+ tests of Hibernate mappings in projects that use Spring-based DAOs.
+ * Class for JUnit testing of Spring-based Hibernate DAOs, i.e. DAOs that extend {@link HibernateDaoSupport}.
  * <p>
  * This class should be used as follows:
  * <pre>
  * public class ExampleTransactionalTest {
  *   <b>&#64;Rule
- *   public HibernateSpringTransactionalMethodRule txContext = new HibernateSpringTransactionalMethodRule();<br/>
+ *   public HibernateSpringTxMethodRule txContext = new HibernateSpringTxMethodRule();</b><br/>
+ *   private ExampleHibernateDao dao = new ExampleHibernateDao(<b>txContext.getHibernateTemplate()</b>);<br/>
  *   &#64;Before
  *   public void before() {
- *     // Prepare environment for every test in this class.
- *     // Transaction (new for every test) has already been open:
- *     txContext.getHibernateTemplate().persist(new ExampleEntity(2, "entity created in before()"));
+ *     // Transaction (new for every test method) has already been open:
+ *     dao.save(new ExampleEntity(2, "entity created in before()"));
  *   }<br/>
  *   &#64;After
  *   public void after() {
- *     // Clean-up after every test in this class. Transaction for the last executed
- *     // test has not yet been close if it is needed:
- *     txContext.getHibernateTemplate().persist(new ExampleEntity(3, "entity created in after()"));
+ *     // Transaction for the last executed test has not yet been closed - if it is needed:
+ *     dao.save(new ExampleEntity(3, "entity created in after()"));
  *   }<br/>
  *   &#64;Test
- *   public void shoudPersistEntity1() throws Exception {
- *       txContext.getHibernateTemplate().persist(new ExampleEntity(1, "name"));
+ *   public void should_persist_entity() throws Exception {
+ *       dao.save(new ExampleEntity(1, "name"));
  *   }<br/>
  *   &#64;Test
- *   public void shoudPersistEntity2() throws Exception {
- *       txContext.getHibernateTemplate().persist(new ExampleEntity(1, "name"));
+ *   public void should_persist_entity_too() throws Exception {
+ *       dao.save(new ExampleEntity(1, "name"));
  *   }
  * }
  * </pre>
  * In above example, if the two tests are executed in parallel then each of them will be executed on different
- * in-memory databases.
+ * in-memory database.
+ * <p>
+ * By default HibernateSpringTxMethodRule scans for entity classes so every
+ * class marked with &#64;Entity will be available during tests.
  *
  * @author <a href="mailto:msk@touk.pl">Michał Sokołowski</a>
  */

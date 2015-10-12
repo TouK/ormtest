@@ -20,8 +20,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * Class for JUnit 4.8+ testing of Ibatis mappings in projects that use Spring-based DAOs. This class uses H2 in-memory
- * database. By default it searches <i>sqlmap-config.xml</i> file on the classpath to configure Ibatis.
+ * Class for JUnit testing of Spring-based iBATIS DAOs.
+ * <p>
+ * By default, this class uses H2 in-memory database and searches
+ * <i>sqlmap-config.xml</i> file on the classpath to configure iBATIS.
  * <p>
  * Tests using this class are very fast because they don't load spring application context although they can be
  * used to test spring DAOs.

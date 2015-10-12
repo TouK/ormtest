@@ -12,8 +12,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 /**
- * Class for JUnit 4.8+ testing of Spring-based Jdbc DAOs. This class uses H2 in-memory
- * database.
+ * Class for JUnit testing of Spring-based Jdbc DAOs.
+ * This class uses H2 in-memory database.
  * <br>
  * Tests using this class are very fast because they don't load spring application context although they can be
  * used to test spring DAOs!
