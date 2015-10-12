@@ -12,7 +12,7 @@ Currently OrmTest supports testing of DAOs that use Hibernate, iBATIS or JDBC.
 
 ##Usage
 
-Add OrmTest dependency:
+Add OrmTest maven dependency:
 
 ```xml
 <dependency>
