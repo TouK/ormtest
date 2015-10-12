@@ -23,9 +23,9 @@ import java.lang.reflect.Method;
 import java.util.Properties;
 
 /**
- * Class for JUnit testing of Spring-based Hibernate DAOs, i.e. DAOs that extend {@link HibernateDaoSupport}.
- * <p>
- * This class should be used as follows:
+ * Class for JUnit testing of Spring-based Hibernate DAOs. Such DAOs extend Spring's {@link HibernateDaoSupport}
+ * which in turn needs a {@link HibernateTemplate}. Such template can be obtained through
+ * {@link #getHibernateTemplate()} like in the example below.
  * <pre>
  * public class ExampleTransactionalTest {
  *   <b>&#64;Rule
@@ -54,8 +54,8 @@ import java.util.Properties;
  * In above example, if the two tests are executed in parallel then each of them will be executed on different
  * in-memory database.
  * <p>
- * By default HibernateSpringTxTestRule scans for entity classes so every
- * class marked with &#64;Entity will be available during tests.
+ * By default <code>HibernateSpringTxTestRule</code> scans for entity classes so every
+ * class marked with <code>&#64;Entity</code> will be available during tests.
  *
  * @author <a href="mailto:msk@touk.pl">Michał Sokołowski</a>
  */
