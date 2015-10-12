@@ -26,10 +26,6 @@ http://touk.github.io/ormtest/apidocs/
 
 OrmTest is an open source project released under the [Apache License, Version 2.0](http://www.apache.org/licenses/LICENSE-2.0).
 
-##Where it can be found
-
-OrmTest is hosted on [GitHub](http://touk.github.com/ormtest/).
-
 ##Author
 
 OrmTest was created in [TouK](http://touk.pl) by [Michał Sokołowski](mailto:msk@touk.pl).

@@ -51,7 +51,7 @@ import java.util.Properties;
  *   }
  * }
  * </pre>
- * In above example, if the two tests are executed in parallel then each of them will be executed on different
+ * In above example, if the two tests are executed in parallel then each of them will be executed on a different
  * in-memory database.
  * <p>
  * By default <code>HibernateSpringTxTestRule</code> scans for entity classes so every
