@@ -4,26 +4,30 @@
  */
 package pl.touk.ormtesttest;
 
-import org.junit.*;
-import pl.touk.ormtest.HibernateSpringTxMethodRule;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import pl.touk.ormtest.HibernateSpringTxTestRule;
 
 
 /**
  * @author <a href="mailto:msk@touk.pl">Michał Sokołowski</a>
  */
-public class HibernateSpringTxMethodRuleTest {
+public class HibernateSpringTxTestRuleTest {
 
     @Rule
-    public HibernateSpringTxMethodRule txContext = createHibernateSpringTxMethodRule();
+    public HibernateSpringTxTestRule txContext = createHibernateSpringTxTestRule();
 
-    protected HibernateSpringTxMethodRule createHibernateSpringTxMethodRule() {
+    protected HibernateSpringTxTestRule createHibernateSpringTxTestRule() {
         // This maven module (ormtesttest) is used by modules spring2_0_0, spring2_5_6 etc. as a jar on a classpath
         // during tests. This module contains hibernate entity class (ExampleEntity) so the jar also contains it.
-        // Searching entity classes through package scanning mechanism (by default HibernateSpringTxMethodRule uses
+        // Searching entity classes through package scanning mechanism (by default HibernateSpringTxTestRule uses
         // this mechanism) doesn't work in case of jars (at least not always; for instance see
         // http://www.carbonrider.com/2011/02/27/spring-hibernate-annotation-entity-classes-in-jar-not-recognised-xxx-is-not-mapped/).
         // Hence explicitly list entity classes:
-        return new HibernateSpringTxMethodRuleWithExapmleEntity();
+        return new HibernateSpringTxTestRuleWithExampleEntity();
     }
 
     @Before

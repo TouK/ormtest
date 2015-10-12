@@ -29,9 +29,9 @@ import java.util.concurrent.ConcurrentMap;
  *
  * @author <a href="mailto:msk@touk.pl">Michał Sokołowski</a>
  */
-abstract public class SpringTxMethodRule implements TestRule {
+abstract public class SpringTxTestRule implements TestRule {
 
-    private static final Log log = LogFactory.getLog(SpringTxMethodRule.class);
+    private static final Log log = LogFactory.getLog(SpringTxTestRule.class);
 
     protected final static ConcurrentMap<Thread, TransactionStatus> txStatuses =
             new ConcurrentHashMap<Thread, TransactionStatus>();
@@ -42,11 +42,11 @@ abstract public class SpringTxMethodRule implements TestRule {
 
     private final String h2ModeOption;
 
-    public SpringTxMethodRule() {
+    public SpringTxTestRule() {
         this(null);
     }
 
-    public SpringTxMethodRule(String h2Mode) {
+    public SpringTxTestRule(String h2Mode) {
         String invokerClassName = findInvokingTestClass().getName();
         threadsPerTestClass.putIfAbsent(invokerClassName, new HashSet<Thread>());
         threadsPerTestClass.get(invokerClassName).add(Thread.currentThread());
@@ -59,7 +59,7 @@ abstract public class SpringTxMethodRule implements TestRule {
         for (int i = indexOfStackTraceElementCorrespondingToCurrentMethod; i < stackTrace.length; i++) {
             StackTraceElement el = stackTrace[i];
             Class classOfElement = getStackTraceElementClass(el);
-            if (!SpringTxMethodRule.class.isAssignableFrom(classOfElement)) {
+            if (!SpringTxTestRule.class.isAssignableFrom(classOfElement)) {
                 return classOfElement;
             }
         }

@@ -4,25 +4,30 @@
  */
 package pl.touk.ormtesttest;
 
-import org.junit.*;
-import pl.touk.ormtest.MysqlIbatisSpringTxMethodRule;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import pl.touk.ormtest.MysqlIbatisSpringTxTestRule;
 
 import java.util.List;
 
 /**
  * @author <a href="mailto:msk@touk.pl">Michał Sokołowski</a>
  */
-public class MysqlIbatisSpringTxMethodRuleTest {
+public class MysqlIbatisSpringTxTestRuleTest {
 
     private ExampleEntity firstExampleEntity = null;
 
     @Rule
-    public MysqlIbatisSpringTxMethodRule txContext = new MysqlIbatisSpringTxMethodRule();
+    public MysqlIbatisSpringTxTestRule txContext = new MysqlIbatisSpringTxTestRule();
 
     @Before
     public void before() {
         // The following isn't needed as mysql-init.sql is executed
-        // by default when MysqlIbatisSpringTxMethodRuleTest is used:
+        // by default when MysqlIbatisSpringTxTestRuleTest is used:
         // SimpleJdbcTestUtils.executeSqlScript(
         //      new SimpleJdbcTemplate(txContext.getSqlMapClientTemplate().getDataSource()),
         //      new ClassPathResource("mysql-init.sql"), true);
@@ -37,11 +42,11 @@ public class MysqlIbatisSpringTxMethodRuleTest {
 
     @AfterClass
     public static void afterClass() {
-        // This class interferes with class IbatisSpringTxMethodRuleTest: if tests from this class are run first
-        // then threads used during these tests can be reused to run tests in IbatisSpringTxMethodRuleTest. The other
+        // This class interferes with class IbatisSpringTxTestRuleTest: if tests from this class are run first
+        // then threads used during these tests can be reused to run tests in IbatisSpringTxTestRuleTest. The other
         // class has different database (data source) so we must clean any thread specific data (for example data
         // source) created by threads running this class.
-        MysqlIbatisSpringTxMethodRule.resetThreadsForCurrentTestClass();
+        MysqlIbatisSpringTxTestRule.resetThreadsForCurrentTestClass();
     }
 
     @Test

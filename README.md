@@ -10,6 +10,12 @@ OrmTest is a java framework for easy JUnit 4.9+ testing of object-relation mappi
 
 Currently OrmTest supports testing of DAOs that use Hibernate, iBATIS or JDBC. 
 
+##Usage
+
+For Hibernate see [HibernateSpringTxTestRule](http://touk.github.io/ormtest/apidocs/pl/touk/ormtest/HibernateSpringTxTestRule.html).
+For iBATIS see [IbatisSpringTxTestRule](http://touk.github.io/ormtest/apidocs/pl/touk/ormtest/IbatisSpringTxTestRule.html).
+For JDBC see [JdbcSpringTxTestRule](http://touk.github.io/ormtest/apidocs/pl/touk/ormtest/JdbcSpringTxTestRule.html).
+
 ##Javadoc
 
 http://touk.github.io/ormtest/apidocs/

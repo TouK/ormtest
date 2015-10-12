@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentMap;
  * public class TransactionalTest {
  *
  *   <b>&#64;Rule
- *   public JdbcSpringTxMethodRule txContext = new JdbcSpringTxMethodRule();</b>
+ *   public JdbcSpringTxTestRule txContext = new JdbcSpringTxTestRule();</b>
  *
  *   &#64;Before
  *   public void before() {
@@ -71,7 +71,7 @@ import java.util.concurrent.ConcurrentMap;
  *
  * @author <a href="mailto:msk@touk.pl">Michał Sokołowski</a>
  */
-public class JdbcSpringTxMethodRule extends SpringTxMethodRule {
+public class JdbcSpringTxTestRule extends SpringTxTestRule {
 
     private final static ConcurrentMap<Thread, JdbcTemplate> jdbcTemplates = new ConcurrentHashMap<Thread, JdbcTemplate>();
 

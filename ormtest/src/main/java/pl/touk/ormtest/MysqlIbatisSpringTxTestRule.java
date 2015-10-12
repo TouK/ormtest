@@ -23,9 +23,9 @@ import java.util.HashMap;
 import com.mysql.management.MysqldResource;
 import com.mysql.management.MysqldResourceI;
 
-public class MysqlIbatisSpringTxMethodRule extends IbatisSpringTxMethodRule {
+public class MysqlIbatisSpringTxTestRule extends IbatisSpringTxTestRule {
 
-    private static final Log logger = LogFactory.getLog(MysqlIbatisSpringTxMethodRule.class);
+    private static final Log logger = LogFactory.getLog(MysqlIbatisSpringTxTestRule.class);
 
     private static final String[] schemaDefault = new String[]{"s"};
     private static volatile String[] schema = schemaDefault;
@@ -38,13 +38,13 @@ public class MysqlIbatisSpringTxMethodRule extends IbatisSpringTxMethodRule {
     private static final File mysqlDir =
             new File(new File(System.getProperty("java.io.tmpdir")), "db" + System.currentTimeMillis());
 
-    public MysqlIbatisSpringTxMethodRule(String schema, String initScript, String sqlMapConfig) {
+    public MysqlIbatisSpringTxTestRule(String schema, String initScript, String sqlMapConfig) {
         setSchema(schema);
         setInitScript(initScript);
         setSqlMapConfig(sqlMapConfig);
     }
 
-    public MysqlIbatisSpringTxMethodRule() {
+    public MysqlIbatisSpringTxTestRule() {
     }
 
     public static void setSchema(String schema) {
@@ -52,9 +52,9 @@ public class MysqlIbatisSpringTxMethodRule extends IbatisSpringTxMethodRule {
             throw new IllegalArgumentException("schema must not be null or empty");
         }
         String[] schemaArray = new String[]{schema};
-        if (!Arrays.equals(schemaArray, MysqlIbatisSpringTxMethodRule.schema)) {
+        if (!Arrays.equals(schemaArray, MysqlIbatisSpringTxTestRule.schema)) {
             stopMysqlAndReset();
-            MysqlIbatisSpringTxMethodRule.schema = schemaArray;
+            MysqlIbatisSpringTxTestRule.schema = schemaArray;
         }
     }
 
@@ -63,16 +63,16 @@ public class MysqlIbatisSpringTxMethodRule extends IbatisSpringTxMethodRule {
             throw new IllegalArgumentException("initScript must not be null or empty");
         }
         String[] initScriptArray = new String[]{initScript};
-        if (!Arrays.equals(initScriptArray, MysqlIbatisSpringTxMethodRule.initScript)) {
+        if (!Arrays.equals(initScriptArray, MysqlIbatisSpringTxTestRule.initScript)) {
             stopMysqlAndReset();
-            MysqlIbatisSpringTxMethodRule.initScript = initScriptArray;
+            MysqlIbatisSpringTxTestRule.initScript = initScriptArray;
         }
     }
 
     public static void setSqlMapConfig(String... sqlMapConfig) {
         if (!Arrays.equals(sqlMapConfig, getSqlMapConfig())) {
             stopMysqlAndReset();
-            IbatisSpringTxMethodRule.setSqlMapConfig(sqlMapConfig);
+            IbatisSpringTxTestRule.setSqlMapConfig(sqlMapConfig);
         }
     }
 
@@ -167,11 +167,11 @@ public class MysqlIbatisSpringTxMethodRule extends IbatisSpringTxMethodRule {
     }
 
     public static void resetThreadsForCurrentTestClass() {
-        MysqlIbatisSpringTxMethodRule.resetThreadsForCurrentTestClass(true);
+        MysqlIbatisSpringTxTestRule.resetThreadsForCurrentTestClass(true);
     }
 
     protected static void resetThreadsForCurrentTestClass(boolean hardReset) {
-        IbatisSpringTxMethodRule.resetThreadsForCurrentTestClass(hardReset);
+        IbatisSpringTxTestRule.resetThreadsForCurrentTestClass(hardReset);
         if (hardReset) {
             schema = schemaDefault;
             initScript = initScriptDefault;

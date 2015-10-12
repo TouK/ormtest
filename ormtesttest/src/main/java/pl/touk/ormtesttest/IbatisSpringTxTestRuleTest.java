@@ -4,11 +4,16 @@
  */
 package pl.touk.ormtesttest;
 
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.springframework.test.jdbc.SimpleJdbcTestUtils;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.core.io.ClassPathResource;
-import org.junit.*;
-import pl.touk.ormtest.IbatisSpringTxMethodRule;
+import pl.touk.ormtest.IbatisSpringTxTestRule;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -16,15 +21,15 @@ import java.util.List;
 /**
  * @author <a href="mailto:msk@touk.pl">Michał Sokołowski</a>
  */
-public class IbatisSpringTxMethodRuleTest {
+public class IbatisSpringTxTestRuleTest {
 
     private ExampleEntity firstExampleEntity = null;
 
     @Rule
-    public IbatisSpringTxMethodRule txContext = createIbatisSpringTxMethodRule();
+    public IbatisSpringTxTestRule txContext = createIbatisSpringTxTestRule();
 
-    protected IbatisSpringTxMethodRule createIbatisSpringTxMethodRule() {
-        return new IbatisSpringTxMethodRule();
+    protected IbatisSpringTxTestRule createIbatisSpringTxTestRule() {
+        return new IbatisSpringTxTestRule();
     }
 
     @Before
@@ -44,11 +49,11 @@ public class IbatisSpringTxMethodRuleTest {
 
     @AfterClass
     public static void afterClass() {
-        // This class interferes with class MysqlIbatisSpringTxMethodRuleTest: if tests from this class are run first
-        // then threads used during these tests can be reused to run tests in MysqlIbatisSpringTxMethodRuleTest. The
+        // This class interferes with class MysqlIbatisSpringTxTestRuleTest: if tests from this class are run first
+        // then threads used during these tests can be reused to run tests in MysqlIbatisSpringTxTestRuleTest. The
         // other class has different database (data source) so we must clean any thread specific data (for example data
         // source) created by threads running this class.
-        IbatisSpringTxMethodRule.resetThreadsForCurrentTestClass();
+        IbatisSpringTxTestRule.resetThreadsForCurrentTestClass();
     }
 
     @Test

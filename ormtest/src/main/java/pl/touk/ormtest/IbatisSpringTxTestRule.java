@@ -35,7 +35,7 @@ import java.util.concurrent.ConcurrentMap;
  * <pre>
  * public class TransactionalTest {
  *    <b>&#64;Rule
- *    public IbatisSpringTxMethodRule txContext = new IbatisSpringTxMethodRule();</b><br/>
+ *    public IbatisSpringTxTestRule txContext = new IbatisSpringTxTestRule();</b><br/>
  *    &#64;Before
  *    public void prepareEnvironmentForEveryTest() {
  *       // Transaction (new for every test) has already been open.
@@ -95,7 +95,7 @@ import java.util.concurrent.ConcurrentMap;
  *
  * @author <a href="mailto:msk@touk.pl">Michał Sokołowski</a>
  */
-public class IbatisSpringTxMethodRule extends SpringTxMethodRule {
+public class IbatisSpringTxTestRule extends SpringTxTestRule {
 
     private final static String[] sqlMapConfigDefault = new String[]{"/sqlmap-config.xml"};
     private static volatile Object[] sqlMapConfig = sqlMapConfigDefault;
@@ -121,7 +121,7 @@ public class IbatisSpringTxMethodRule extends SpringTxMethodRule {
                 Preconditions.checkArgument(sqlMapConfigs[i] instanceof Resource, "sqlMapConfigs[%s] must be one of: String, Resource, List of two Strings", i);
             }
         }
-        IbatisSpringTxMethodRule.sqlMapConfig = sqlMapConfigs;
+        IbatisSpringTxTestRule.sqlMapConfig = sqlMapConfigs;
     }
 
     private static void validatePathAndAncestorDirectory(Object[] sqlMapConfig, int index) {
@@ -147,23 +147,23 @@ public class IbatisSpringTxMethodRule extends SpringTxMethodRule {
     }
 
     /**
-     * Constructs an IbatisSpringTxMethodRule that reads the Ibatis configuration from the default location
+     * Constructs an IbatisSpringTxTestRule that reads the Ibatis configuration from the default location
      * i.e. from the classpath resource "/sqlmap-config.xml".
      */
-    public IbatisSpringTxMethodRule() {
+    public IbatisSpringTxTestRule() {
     }
 
     /**
-     * Constructs an IbatisSpringTxMethodRule that reads the Ibatis configuration from the given Resource.
+     * Constructs an IbatisSpringTxTestRule that reads the Ibatis configuration from the given Resource.
      *
      * @param sqlMapConfig a Resource containing Ibatis configuration
      */
-    public IbatisSpringTxMethodRule(Resource sqlMapConfig) {
+    public IbatisSpringTxTestRule(Resource sqlMapConfig) {
         setSqlMapConfig(sqlMapConfig);
     }
 
     /**
-     * Constructs an IbatisSpringTxMethodRule that reads the Ibatis configuration from the given path. If the given
+     * Constructs an IbatisSpringTxTestRule that reads the Ibatis configuration from the given path. If the given
      * path is an Ant pattern (i.e.
      * {@link org.springframework.util.AntPathMatcher#isPattern(String) AntPathMatcher.isPattern(String)}
      * returns true for this path)
@@ -172,12 +172,12 @@ public class IbatisSpringTxMethodRule extends SpringTxMethodRule {
      *
      * @param sqlMapConfigPath a path pointing to an Ibatis configuration
      */
-    public IbatisSpringTxMethodRule(String sqlMapConfigPath) {
+    public IbatisSpringTxTestRule(String sqlMapConfigPath) {
         setSqlMapConfig(sqlMapConfigPath);
     }
 
     /**
-     * Constructs an IbatisSpringTxMethodRule that reads the Ibatis configuration from the given path
+     * Constructs an IbatisSpringTxTestRule that reads the Ibatis configuration from the given path
      * (<code>fileSystemSqlMapConfigPath</code>) that is a descendant of <code>ancestorDirectory</code>
      * and sets the H2 compatibility mode to the provided one.
      * <p>
@@ -198,25 +198,25 @@ public class IbatisSpringTxMethodRule extends SpringTxMethodRule {
      * @param ancestorDirectory          file which is descendant of this directory will be used as Ibatis configuration
      * @param h2CompatibilityMode        H2 compatibility mode to be used (for example "Oracle", "MySQL" etc.)
      */
-    public IbatisSpringTxMethodRule(String fileSystemSqlMapConfigPath, String ancestorDirectory, String h2CompatibilityMode) {
+    public IbatisSpringTxTestRule(String fileSystemSqlMapConfigPath, String ancestorDirectory, String h2CompatibilityMode) {
         super(h2CompatibilityMode);
         setSqlMapConfig(Arrays.asList(fileSystemSqlMapConfigPath, ancestorDirectory));
     }
 
     /**
-     * Constructs an IbatisSpringTxMethodRule that reads the Ibatis configuration from the given Resource and
+     * Constructs an IbatisSpringTxTestRule that reads the Ibatis configuration from the given Resource and
      * sets the H2 compatibility mode to the provided one.
      *
      * @param sqlMapConfig        a Resource containing Ibatis configuration
      * @param h2CompatibilityMode H2 compatibility mode to be used (for example "Oracle", "MySQL" etc.)
      */
-    public IbatisSpringTxMethodRule(Resource sqlMapConfig, String h2CompatibilityMode) {
+    public IbatisSpringTxTestRule(Resource sqlMapConfig, String h2CompatibilityMode) {
         super(h2CompatibilityMode);
         setSqlMapConfig(sqlMapConfig);
     }
 
     /**
-     * Constructs an IbatisSpringTxMethodRule that reads the Ibatis configuration from the given path and
+     * Constructs an IbatisSpringTxTestRule that reads the Ibatis configuration from the given path and
      * sets the H2 compatibility mode to the provided one. If the given
      * path is an Ant pattern (i.e.
      * {@link org.springframework.util.AntPathMatcher#isPattern(String) AntPathMatcher.isPattern(String)}
@@ -227,7 +227,7 @@ public class IbatisSpringTxMethodRule extends SpringTxMethodRule {
      * @param sqlMapConfigPath    a path pointing to an Ibatis configuration
      * @param h2CompatibilityMode H2 compatibility mode to be used (for example "Oracle", "MySQL" etc.)
      */
-    public IbatisSpringTxMethodRule(String sqlMapConfigPath, String h2CompatibilityMode) {
+    public IbatisSpringTxTestRule(String sqlMapConfigPath, String h2CompatibilityMode) {
         super(h2CompatibilityMode);
         setSqlMapConfig(sqlMapConfigPath);
     }

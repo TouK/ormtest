@@ -12,7 +12,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
-public class IbatisSpringTxMethodRuleTest {
+public class IbatisSpringTxTestRuleTest {
     @Test
     public void shouldThrowException() throws Exception {
         shouldThrowIllegalArgumentException("sqlMapConfigs must not be empty");
@@ -41,19 +41,19 @@ public class IbatisSpringTxMethodRuleTest {
         Resource resourceMock = mock(Resource.class);
 
         // when
-        IbatisSpringTxMethodRule.setSqlMapConfig(resourceMock);
+        IbatisSpringTxTestRule.setSqlMapConfig(resourceMock);
 
         // then
-        assertThat(IbatisSpringTxMethodRule.getSqlMapConfig()).isEqualTo(new Object[]{resourceMock});
+        assertThat(IbatisSpringTxTestRule.getSqlMapConfig()).isEqualTo(new Object[]{resourceMock});
     }
 
     @Test
     public void shouldAssignString() throws Exception {
         // when
-        IbatisSpringTxMethodRule.setSqlMapConfig("foo");
+        IbatisSpringTxTestRule.setSqlMapConfig("foo");
 
         // then
-        assertThat(IbatisSpringTxMethodRule.getSqlMapConfig()).isEqualTo(new Object[]{"foo"});
+        assertThat(IbatisSpringTxTestRule.getSqlMapConfig()).isEqualTo(new Object[]{"foo"});
     }
 
     @Test
@@ -62,10 +62,10 @@ public class IbatisSpringTxMethodRuleTest {
         List<String> pathAndAncestorDirectory = Arrays.asList("path", "descendant dir");
 
         // when
-        IbatisSpringTxMethodRule.setSqlMapConfig(pathAndAncestorDirectory);
+        IbatisSpringTxTestRule.setSqlMapConfig(pathAndAncestorDirectory);
 
         // then
-        assertThat(IbatisSpringTxMethodRule.getSqlMapConfig()).isEqualTo(new Object[]{pathAndAncestorDirectory});
+        assertThat(IbatisSpringTxTestRule.getSqlMapConfig()).isEqualTo(new Object[]{pathAndAncestorDirectory});
     }
 
     @Test
@@ -76,10 +76,10 @@ public class IbatisSpringTxMethodRuleTest {
         Resource resourceMock = mock(Resource.class);
 
         // when
-        IbatisSpringTxMethodRule.setSqlMapConfig(path, pathAndAncestorDirectory, resourceMock);
+        IbatisSpringTxTestRule.setSqlMapConfig(path, pathAndAncestorDirectory, resourceMock);
 
         // then
-        assertThat(IbatisSpringTxMethodRule.getSqlMapConfig()).isEqualTo(new Object[]{path, pathAndAncestorDirectory, resourceMock});
+        assertThat(IbatisSpringTxTestRule.getSqlMapConfig()).isEqualTo(new Object[]{path, pathAndAncestorDirectory, resourceMock});
     }
 
     @Test
@@ -88,7 +88,7 @@ public class IbatisSpringTxMethodRuleTest {
         Resource[] resources;
 
         // when
-        resources = new IbatisSpringTxMethodRule("file:**/src/test/resources/foo.txt").createSqlMapConfigResourceArray();
+        resources = new IbatisSpringTxTestRule("file:**/src/test/resources/foo.txt").createSqlMapConfigResourceArray();
 
         // then
         assertThat(resources).hasSize(1);
@@ -102,7 +102,7 @@ public class IbatisSpringTxMethodRuleTest {
         Resource[] resources;
 
         // when
-        resources = new IbatisSpringTxMethodRule("classpath:/foo.txt").createSqlMapConfigResourceArray();
+        resources = new IbatisSpringTxTestRule("classpath:/foo.txt").createSqlMapConfigResourceArray();
 
         // then
         assertThat(resources).hasSize(1);
@@ -117,7 +117,7 @@ public class IbatisSpringTxMethodRuleTest {
         Resource[] resources;
 
         // when
-        resources = new IbatisSpringTxMethodRule("classpath:/foo.txt", "ormtest", "").createSqlMapConfigResourceArray();
+        resources = new IbatisSpringTxTestRule("classpath:/foo.txt", "ormtest", "").createSqlMapConfigResourceArray();
 
         // then
         assertThat(resources).hasSize(1);
@@ -131,7 +131,7 @@ public class IbatisSpringTxMethodRuleTest {
         Resource[] resources;
 
         // when
-        resources = new IbatisSpringTxMethodRule("file:**/src/test/resources/foo.txt", "ormtest", "").createSqlMapConfigResourceArray();
+        resources = new IbatisSpringTxTestRule("file:**/src/test/resources/foo.txt", "ormtest", "").createSqlMapConfigResourceArray();
 
         // then
         assertThat(resources).hasSize(1);
@@ -146,7 +146,7 @@ public class IbatisSpringTxMethodRuleTest {
         Resource resourceMock = mock(Resource.class);
 
         // when
-        resources = new IbatisSpringTxMethodRule(resourceMock).createSqlMapConfigResourceArray();
+        resources = new IbatisSpringTxTestRule(resourceMock).createSqlMapConfigResourceArray();
 
         // then
         assertThat(resources).hasSize(1);
@@ -159,13 +159,13 @@ public class IbatisSpringTxMethodRuleTest {
         Resource[] resources;
 
         // when
-        resources = new IbatisSpringTxMethodRule("file:**/IbatisSpringTxMethodRule.java", "main", "").createSqlMapConfigResourceArray();
+        resources = new IbatisSpringTxTestRule("file:**/IbatisSpringTxTestRule.java", "main", "").createSqlMapConfigResourceArray();
 
         // then
         assertThat(resources).hasSize(1);
         assertThat(resources[0].exists()).isTrue();
         assertThat(resources[0].getFile().getAbsolutePath()).endsWith(
-                path("ormtest", "src", "main", "java", "pl", "touk", "ormtest", "IbatisSpringTxMethodRule.java"));
+                path("ormtest", "src", "main", "java", "pl", "touk", "ormtest", "IbatisSpringTxTestRule.java"));
     }
 
     @Test
@@ -180,7 +180,7 @@ public class IbatisSpringTxMethodRuleTest {
                 "can't find resource");
         shouldThrowExceptionWhileCreateSqlMapConfigResourceArray("file:**/someNonExistingPath", "ormtest",
                 "can't find resource");
-        shouldThrowExceptionWhileCreateSqlMapConfigResourceArray("file:**/IbatisSpringTxMethodRule.java", null,
+        shouldThrowExceptionWhileCreateSqlMapConfigResourceArray("file:**/IbatisSpringTxTestRule.java", null,
                 "more than one sqlMapConfig resource found by the given name");
 
     }
@@ -192,9 +192,9 @@ public class IbatisSpringTxMethodRuleTest {
         // when
         try {
             if (ancestor == null) {
-                new IbatisSpringTxMethodRule(path).createSqlMapConfigResourceArray();
+                new IbatisSpringTxTestRule(path).createSqlMapConfigResourceArray();
             } else {
-                new IbatisSpringTxMethodRule(path, ancestor, "").createSqlMapConfigResourceArray();
+                new IbatisSpringTxTestRule(path, ancestor, "").createSqlMapConfigResourceArray();
             }
             fail("RuntimeException expected");
         } catch (RuntimeException e) {
@@ -220,17 +220,17 @@ public class IbatisSpringTxMethodRuleTest {
 
     private void shouldThrow(boolean nullPointerExceptionExpected, String exceptionMessage, Object... args) {
         try {
-            IbatisSpringTxMethodRule.setSqlMapConfig(args);
+            IbatisSpringTxTestRule.setSqlMapConfig(args);
             fail((nullPointerExceptionExpected ? "NullPointerException" : "IllegalArgumentException")
-                    + " expected for IbatisSpringTxMethodRule.setSqlMapConfig(" + Arrays.toString(args) + ")");
+                    + " expected for IbatisSpringTxTestRule.setSqlMapConfig(" + Arrays.toString(args) + ")");
         } catch (IllegalArgumentException e) {
             if (nullPointerExceptionExpected) {
-                fail("NullPointerException expected for IbatisSpringTxMethodRule.setSqlMapConfig(" + Arrays.deepToString(args) + ") but caught: " + e);
+                fail("NullPointerException expected for IbatisSpringTxTestRule.setSqlMapConfig(" + Arrays.deepToString(args) + ") but caught: " + e);
             }
             assertThat(e.getMessage()).isEqualTo(exceptionMessage);
         } catch (NullPointerException e) {
             if (!nullPointerExceptionExpected) {
-                fail("IllegalArgumentException expected for IbatisSpringTxMethodRule.setSqlMapConfig(" + Arrays.deepToString(args) + ") but caught: " + e);
+                fail("IllegalArgumentException expected for IbatisSpringTxTestRule.setSqlMapConfig(" + Arrays.deepToString(args) + ") but caught: " + e);
             }
             assertThat(e.getMessage()).isEqualTo(exceptionMessage);
         }

@@ -10,10 +10,10 @@ import pl.touk.ormtesttest.resetmethodtestforsuiterunner.SecondSuite;
 @Suite.SuiteClasses({
         FirstSuite.class,
         SecondSuite.class,
-        HibernateSpringTxMethodRuleTest.class,
-        IbatisSpringTxMethodRuleTest.class,
-        JdbcSpringTxMethodRuleTest.class,
-        MysqlIbatisSpringTxMethodRuleTest.class
+        HibernateSpringTxTestRuleTest.class,
+        IbatisSpringTxTestRuleTest.class,
+        JdbcSpringTxTestRuleTest.class,
+        MysqlIbatisSpringTxTestRuleTest.class
 })
 public class AllTests {
 }

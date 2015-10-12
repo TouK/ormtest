@@ -67,7 +67,7 @@
         <repository>
             <id>maven.touk.pl.releases</id>
             <name>TouK Open source repository</name>
-            <url>http://maven.touk.pl/nexus/content/repositories/releases/</url>
+            <url>http://nexus.touk.pl/nexus/content/repositories/top-releases/</url>
         </repository>
         <repository>
             <!-- Repository containing mysql-connector-mxj-fixed: -->

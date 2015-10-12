@@ -29,7 +29,7 @@ import java.util.Properties;
  * <pre>
  * public class ExampleTransactionalTest {
  *   <b>&#64;Rule
- *   public HibernateSpringTxMethodRule txContext = new HibernateSpringTxMethodRule();</b><br/>
+ *   public HibernateSpringTxTestRule txContext = new HibernateSpringTxTestRule();</b><br/>
  *   private ExampleHibernateDao dao = new ExampleHibernateDao(<b>txContext.getHibernateTemplate()</b>);<br/>
  *   &#64;Before
  *   public void before() {
@@ -54,12 +54,12 @@ import java.util.Properties;
  * In above example, if the two tests are executed in parallel then each of them will be executed on different
  * in-memory database.
  * <p>
- * By default HibernateSpringTxMethodRule scans for entity classes so every
+ * By default HibernateSpringTxTestRule scans for entity classes so every
  * class marked with &#64;Entity will be available during tests.
  *
  * @author <a href="mailto:msk@touk.pl">Michał Sokołowski</a>
  */
-public class HibernateSpringTxMethodRule implements TestRule {
+public class HibernateSpringTxTestRule implements TestRule {
     private final static ThreadLocal<SessionFactory> FACTORY = new ThreadLocal<SessionFactory>();
     private final static ThreadLocal<HibernateTemplate> HIBERNATE_TEMPLATE = new ThreadLocal<HibernateTemplate>();
     private final static ThreadLocal<Session> SESSION = new ThreadLocal<Session>();
@@ -306,7 +306,7 @@ public class HibernateSpringTxMethodRule implements TestRule {
         if (SESSION.get() == null) {
             ensureSessionFactoryInitialized();
             Session session = SessionFactoryUtils.getSession(FACTORY.get(), true);
-            HibernateSpringTxMethodRule.SESSION.set(session);
+            HibernateSpringTxTestRule.SESSION.set(session);
             TransactionSynchronizationManager.bindResource(FACTORY.get(), new SessionHolder(session));
         } else {
             throw new IllegalStateException("non-null session unexpected");

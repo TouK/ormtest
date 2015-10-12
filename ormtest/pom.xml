@@ -15,7 +15,7 @@
     <properties>
         <!--
         Using spring 2.5.6 during compilation. This way OrmTest can be used with Spring 3.0, 3.1 or 3.2
-        at runtime (see comment in method pl.touk.ormtest.IbatisSpringTxMethodRule.sqlMapClient).
+        at runtime (see comment in method pl.touk.ormtest.IbatisSpringTxTestRule.sqlMapClient).
         -->
         <spring.version>2.5.6</spring.version>
     </properties>
