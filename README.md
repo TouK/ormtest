@@ -12,6 +12,19 @@ Currently OrmTest supports testing of DAOs that use Hibernate, iBATIS or JDBC.
 
 ##Usage
 
+Add OrmTest dependency:
+
+```xml
+<dependency>
+    <groupId>pl.touk.ormtest</groupId>
+    <artifactId>ormtest</artifactId>
+    <version>0.9.1</version>
+    <scope>test</scope>
+</dependency>
+```
+
+Then follow javadoc examples.
+
 For Hibernate see [HibernateSpringTxTestRule](http://touk.github.io/ormtest/apidocs/pl/touk/ormtest/HibernateSpringTxTestRule.html).
 
 For iBATIS see [IbatisSpringTxTestRule](http://touk.github.io/ormtest/apidocs/pl/touk/ormtest/IbatisSpringTxTestRule.html).
